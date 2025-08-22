@@ -5,9 +5,6 @@
   <!-- Navbar -->
   <nav id="navbar-main" class="navbar navbar-horizontal navbar-transparent navbar-main navbar-expand-lg navbar-light">
     <div class="container">
-      <a class="navbar-brand" href="{{ route('dashboard') }}">
-        <img src="{{ asset('assets/img/brand/white.png') }}">
-      </a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapse" aria-controls="navbar-collapse" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -29,9 +26,6 @@
         </div>
         <ul class="navbar-nav mr-auto">
           <li class="nav-item">
-            <a href="{{ route('dashboard') }}" class="nav-link">
-              <span class="nav-link-inner--text">Dashboard</span>
-            </a>
           </li>
           <li class="nav-item">
             <a href="{{ route('login') }}" class="nav-link">

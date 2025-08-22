@@ -5,9 +5,6 @@
   <!-- Navbar -->
   <nav id="navbar-main" class="navbar navbar-horizontal navbar-transparent navbar-main navbar-expand-lg navbar-light">
     <div class="container">
-      <a class="navbar-brand" href="{{ route('dashboard') }}">
-        <img src="{{ asset('assets/img/brand/white.png') }}">
-      </a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapse" aria-controls="navbar-collapse" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -29,8 +26,7 @@
         </div>
         <ul class="navbar-nav mr-auto">
           <li class="nav-item">
-            <a href="{{ route('dashboard') }}" class="nav-link">
-              <span class="nav-link-inner--text">Dashboard</span>
+           
             </a>
           </li>
           <li class="nav-item">
@@ -111,17 +107,22 @@
                     <div class="input-group-prepend">
                       <span class="input-group-text"><i class="ni ni-lock-circle-open"></i></span>
                     </div>
-                    <input name="password" class="form-control" placeholder="Password" type="password" required>
+                    <input name="password" id="passwordField" class="form-control" placeholder="Password" type="password" required>
+                    <div class="input-group-append">
+                      <span class="input-group-text" id="togglePassword" style="cursor: pointer;">
+                        <i class="ni ni-eye-17" id="eyeIcon"></i>
+                      </span>
+                    </div>
                   </div>
                 </div>
                 <div class="custom-control custom-control-alternative custom-checkbox">
-                  <input class="custom-control-input" id="customCheckLogin" type="checkbox" name="remember">
+                  <input class="custom-control-input" id="customCheckLogin" type="checkbox" name="remember" value="1">
                   <label class="custom-control-label" for="customCheckLogin">
                     <span class="text-muted">Remember me</span>
                   </label>
                 </div>
                 <div class="text-center">
-                  <button type="submit" class="btn btn-primary my-4">Sign in</button>
+                  <button type="submit" id="loginButton" class="btn btn-primary my-4" disabled style="opacity: 0.5;">Sign in</button>
                 </div>
               </form>
             </div>
@@ -138,5 +139,54 @@
       </div>
     </div>
   </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const rememberCheckbox = document.getElementById('customCheckLogin');
+      const loginButton = document.getElementById('loginButton');
+      const togglePassword = document.getElementById('togglePassword');
+      const passwordField = document.getElementById('passwordField');
+      const eyeIcon = document.getElementById('eyeIcon');
+
+      // Function to update button state
+      function updateButtonState() {
+        if (rememberCheckbox.checked) {
+          loginButton.disabled = false;
+          loginButton.style.opacity = '1';
+        } else {
+          loginButton.disabled = true;
+          loginButton.style.opacity = '0.5';
+        }
+      }
+
+      // Listen for changes on the checkbox
+      rememberCheckbox.addEventListener('change', updateButtonState);
+
+      // Initial state check
+      updateButtonState();
+
+      // Toggle password visibility
+      togglePassword.addEventListener('click', function() {
+        const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordField.setAttribute('type', type);
+        
+        // Toggle eye icon
+        if (type === 'text') {
+          eyeIcon.className = 'ni ni-satisfied'; // Eye closed icon
+        } else {
+          eyeIcon.className = 'ni ni-eye-17'; // Eye open icon
+        }
+      });
+
+      // Prevent form submission if remember is not checked
+      document.querySelector('form').addEventListener('submit', function(e) {
+        if (!rememberCheckbox.checked) {
+          e.preventDefault();
+          alert('Anda harus mencentang "Remember me" untuk dapat login.');
+          return false;
+        }
+      });
+    });
+  </script>
 </body>
 @endsection

@@ -6,14 +6,14 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\AuthController;
 
 // Dashboard umum (default)
-Route::get('/', [dashboardController::class, 'index'])->name('dashboard');
+Route::get('/dashboard', [dashboardController::class, 'index'])->name('dashboard');
 
 // Report Activity
 Route::get('/reports/activity', [ReportController::class, 'activity'])->name('reports.activity');
 Route::get('/reports/competitor', [ReportController::class, 'competitor'])->name('reports.competitor');
 
 // Auth routes
-Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+Route::get('/', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
 Route::post('/register', [AuthController::class, 'register'])->name('register.post');

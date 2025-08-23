@@ -1,117 +1,179 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container-fluid mt-4">
-  <div class="row">
-    <!-- FORM INPUT ACTIVITY -->
-    <div class="col-lg-4">
-      <div class="card shadow-sm mb-4">
-        <div class="card-header bg-primary text-white">
-          <h5 class="mb-0">Tambah Report Activity</h5>
+<div class="row">
+    {{-- Form Tambah Report --}}
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">Tambah Report Activity</div>
+            <div class="card-body">
+                {{-- pesan sukses --}}
+                @if(session('success'))
+                    <div class="alert alert-success">{{ session('success') }}</div>
+                @endif
+
+                <form action="{{ route('reports.store') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="form-group mb-3">
+                        <label>Sales</label>
+                        <input type="text" name="sales" class="form-control" placeholder="Nama Sales" required>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label>Aktivitas / Kegiatan</label>
+                        <input type="text" name="aktivitas" class="form-control" placeholder="Contoh: Kunjungan PT ABC" required>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label>Tanggal</label>
+                        <input type="date" name="tanggal" class="form-control" required>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label>Lokasi</label>
+                        <input type="text" name="lokasi" class="form-control" placeholder="Contoh: Bondowoso" required>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label>Evidence (Foto Progress)</label>
+                        <input type="file" name="evidence" class="form-control">
+                    </div>
+                    <div class="form-group mb-3">
+                        <label>Hasil / Kendala</label>
+                        <textarea name="hasil_kendala" class="form-control" placeholder="Tuliskan hasil kegiatan atau kendala yang ditemui"></textarea>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label>Status</label>
+                        <select name="status" class="form-control" required>
+                            <option value="selesai">Selesai</option>
+                            <option value="proses">Proses</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">Simpan</button>
+                </form>
+            </div>
         </div>
-        <div class="card-body">
-          <form enctype="multipart/form-data">
-            <div class="form-group">
-              <label><strong>Sales</strong></label>
-              <input type="text" class="form-control" placeholder="Nama Sales">
-            </div>
-            <div class="form-group">
-              <label><strong>Aktivitas / Kegiatan</strong></label>
-              <input type="text" class="form-control" placeholder="Contoh: Kunjungan PT ABC">
-            </div>
-            <div class="form-group">
-              <label><strong>Tanggal</strong></label>
-              <input type="date" class="form-control">
-            </div>
-            <div class="form-group">
-              <label><strong>Lokasi</strong></label>
-              <input type="text" class="form-control" placeholder="Contoh: Bondowoso">
-            </div>
-            <div class="form-group">
-              <label><strong>Evidence (Foto Progress)</strong></label>
-              <input type="file" class="form-control-file">
-            </div>
-            <div class="form-group">
-              <label><strong>Hasil / Kendala</strong></label>
-              <textarea class="form-control" rows="3" placeholder="Tuliskan hasil kegiatan atau kendala yang ditemui"></textarea>
-            </div>
-            <div class="form-group">
-              <label><strong>Status</strong></label>
-              <select class="form-control">
-                <option>Selesai</option>
-                <option>Proses</option>
-                <option>Pending</option>
-              </select>
-            </div>
-            <button class="btn btn-success btn-block">Simpan</button>
-          </form>
-        </div>
-      </div>
     </div>
 
-    <!-- TABEL DATA -->
-    <div class="col-lg-8">
-      <div class="card shadow-sm">
-        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-          <h5 class="mb-0">Daftar Report Activity</h5>
-          <button class="btn btn-sm btn-outline-light">Export PDF</button>
-        </div>
-        <div class="card-body">
-          <div class="table-responsive">
-            <table class="table table-hover table-bordered align-middle">
-              <thead class="thead-light">
-                <tr>
-                  <th>No</th>
-                  <th>Sales</th>
-                  <th>Aktivitas</th>
-                  <th>Tanggal</th>
-                  <th>Lokasi</th>
-                  <th>Evidence</th>
-                  <th>Hasil/Kendala</th>
-                  <th>Status</th>
-                  <th>Aksi</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>1</td>
-                  <td>John Doe</td>
-                  <td>Kunjungan PT ABC</td>
-                  <td>2025-08-20</td>
-                  <td>Bondowoso</td>
-                  <td>
-                    <img src="https://via.placeholder.com/80" class="img-thumbnail">
-                  </td>
-                  <td>Berhasil presentasi produk, kendala pada penjadwalan lanjutan.</td>
-                  <td><span class="badge badge-success">Selesai</span></td>
-                  <td>
-                    <button class="btn btn-sm btn-primary">Edit</button>
-                    <button class="btn btn-sm btn-danger">Hapus</button>
-                  </td>
-                </tr>
-                <tr>
-                  <td>2</td>
-                  <td>Jane Smith</td>
-                  <td>Follow Up via Telepon</td>
-                  <td>2025-08-21</td>
-                  <td>Surabaya</td>
-                  <td>
-                    <img src="https://via.placeholder.com/80" class="img-thumbnail">
-                  </td>
-                  <td>Client masih mempertimbangkan, kendala: keputusan di level manajemen.</td>
-                  <td><span class="badge badge-warning">Proses</span></td>
-                  <td>
-                    <button class="btn btn-sm btn-primary">Edit</button>
-                    <button class="btn btn-sm btn-danger">Hapus</button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
+    {{-- Daftar Report --}}
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                <span>Daftar Report Activity</span>
+                <a href="{{ route('reports.exportPdf') }}" class="btn btn-sm btn-light">Export PDF</a>
+            </div>
+            <div class="card-body">
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Sales</th>
+                            <th>Aktivitas</th>
+                            <th>Tanggal</th>
+                            <th>Lokasi</th>
+                            <th>Evidence</th>
+                            <th>Hasil / Kendala</th>
+                            <th>Status</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($reports as $i => $report)
+                            <tr>
+                                <td>{{ $i+1 }}</td>
+                                <td>{{ $report->sales }}</td>
+                                <td>{{ $report->aktivitas }}</td>
+                                <td>{{ $report->tanggal }}</td>
+                                <td>{{ $report->lokasi }}</td>
+                                <td>
+                                    @if($report->evidence)
+                                        <img src="{{ asset('storage/'.$report->evidence) }}" width="80">
+                                    @endif
+                                </td>
+                                <td>{{ $report->hasil_kendala }}</td>
+                                <td>
+                                    <span class="badge {{ $report->status == 'selesai' ? 'bg-success' : 'bg-warning' }}">
+                                        {{ ucfirst($report->status) }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {{-- Tombol Edit --}}
+                                    <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editModal{{ $report->id }}">
+                                        Edit
+                                    </button>
 
-  </div>
+                                    {{-- Tombol Hapus --}}
+                                    <form action="{{ route('reports.destroy', $report->id) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Yakin hapus data ini?')">Hapus</button>
+                                    </form>
+                                </td>
+                            </tr>
+
+                            {{-- Modal Edit --}}
+                            <div class="modal fade" id="editModal{{ $report->id }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <form action="{{ route('reports.update', $report->id) }}" method="POST" enctype="multipart/form-data">
+                                            @csrf
+                                            @method('PUT')
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Edit Report</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="mb-3">
+                                                    <label>Sales</label>
+                                                    <input type="text" name="sales" class="form-control" value="{{ $report->sales }}" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label>Aktivitas</label>
+                                                    <input type="text" name="aktivitas" class="form-control" value="{{ $report->aktivitas }}" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label>Tanggal</label>
+                                                    <input type="date" name="tanggal" class="form-control" value="{{ $report->tanggal }}" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label>Lokasi</label>
+                                                    <input type="text" name="lokasi" class="form-control" value="{{ $report->lokasi }}" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label>Evidence (Opsional)</label><br>
+                                                    @if($report->evidence)
+                                                        <img src="{{ asset('storage/'.$report->evidence) }}" width="80" class="mb-2"><br>
+                                                    @endif
+                                                    <input type="file" name="evidence" class="form-control">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label>Hasil / Kendala</label>
+                                                    <textarea name="hasil_kendala" class="form-control">{{ $report->hasil_kendala }}</textarea>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label>Status</label>
+                                                    <select name="status" class="form-control" required>
+                                                        <option value="selesai" {{ $report->status == 'selesai' ? 'selected' : '' }}>Selesai</option>
+                                                        <option value="proses" {{ $report->status == 'proses' ? 'selected' : '' }}>Proses</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="submit" class="btn btn-success">Update</button>
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        @empty
+                            <tr>
+                                <td colspan="9" class="text-center">Belum ada report</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
+
+{{-- Bootstrap JS untuk modal --}}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 @endsection

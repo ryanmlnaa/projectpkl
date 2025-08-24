@@ -82,6 +82,14 @@
                   {{ session('error') }}
                 </div>
               @endif
+
+              <!-- pesan success -->
+              @if(session('success'))
+                <div class="alert alert-success">
+                  {{ session('success') }}
+                </div>
+              @endif
+
               @if ($errors->any())
                 <div class="alert alert-danger">
                   <ul class="mb-0">
@@ -89,6 +97,14 @@
                       <li>{{ $error }}</li>
                     @endforeach
                   </ul>
+                  @if(session('show_forgot_password'))
+                    <hr class="my-3">
+                    <div class="text-center">
+                      <a href="{{ route('forgot.password') }}" class="btn btn-outline-warning btn-sm">
+                        <i class="ni ni-key-25"></i> Lupa Password?
+                      </a>
+                    </div>
+                  @endif
                 </div>
               @endif
 
@@ -129,7 +145,7 @@
           </div>
           <div class="row mt-3">
             <div class="col-6">
-              <a href="#" class="text-light"><small>Lupa password?</small></a>
+              <a href="{{ route('forgot.password') }}" class="text-light"><small>Lupa password?</small></a>
             </div>
             <div class="col-6 text-right">
               <a href="{{ route('register') }}" class="text-light"><small>Buat akun baru</small></a>

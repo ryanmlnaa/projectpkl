@@ -7,13 +7,15 @@
       <h4 class="mb-0"><i class="fas fa-users"></i> Report Competitor</h4>
     </div>
     <div class="card-body">
-      <!-- FORM PILIH CLUSTER -->
-      <form id="competitorForm" action="#" method="POST">
+      
+     <!-- FORM INPUT COMPETITOR -->
+      {{-- 🔹 Ubah action form ke route competitor.store --}}
+      <form id="competitorForm" action="{{ route('competitor.store') }}" method="POST">
         @csrf
         <div class="row mb-3">
           <div class="col-md-4">
             <label class="form-label"><strong>Pilih Cluster</strong></label>
-            <select class="form-control" id="clusterSelect" required>
+            <select class="form-control" name="cluster" id="clusterSelect" required>
               <option value="">-- Pilih Cluster --</option>
               <option value="Cluster A">Cluster A</option>
               <option value="Cluster B">Cluster B</option>
@@ -23,19 +25,12 @@
           </div>
         </div>
 
-        <!-- FORM INPUT COMPETITOR -->
         <div id="competitorInputs" style="display: none;">
           <div class="border p-3 rounded bg-light mb-3">
             <div class="row g-3 align-items-end">
               <div class="col-md-6">
                 <label class="form-label">Nama Competitor</label>
-                <input type="text" name="competitor_name[]" class="form-control" list="competitorList" placeholder="Ketik nama competitor..." required>
-                <datalist id="competitorList">
-                  <option value="Competitor 1">
-                  <option value="Competitor 2">
-                  <option value="Competitor 3">
-                  <option value="Competitor 4">
-                </datalist>
+                <input type="text" name="competitor_name[]" class="form-control" placeholder="Ketik nama competitor..." required>
               </div>
               <div class="col-md-4">
                 <label class="form-label">Harga</label>
@@ -76,26 +71,34 @@
             </tr>
           </thead>
           <tbody>
+            {{-- 🔹 Looping data competitor --}}
+            @forelse($competitors as $index => $item)
             <tr>
-              <td>1</td>
-              <td><span class="badge bg-info">Cluster A</span></td>
-              <td>Competitor 1</td>
-              <td><strong>Rp 25.000</strong></td>
+              <td>{{ $index+1 }}</td>
+              <td><span class="badge bg-info">{{ $item->cluster }}</span></td>
+              <td>{{ $item->competitor_name }}</td>
+              <td><strong>Rp {{ number_format($item->harga, 0, ',', '.') }}</strong></td>
               <td>
-                <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
-                <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                {{-- 🔹 Edit --}}
+                <a href="{{ route('competitor.edit', $item->id) }}" class="btn btn-sm btn-primary">
+                  <i class="fas fa-edit"></i>
+                </a>
+
+                {{-- 🔹 Delete --}}
+                <form action="{{ route('competitor.destroy', $item->id) }}" method="POST" class="d-inline">
+                  @csrf
+                  @method('DELETE')
+                  <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Yakin hapus data?')">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </form>
               </td>
             </tr>
+            @empty
             <tr>
-              <td>2</td>
-              <td><span class="badge bg-warning">Cluster B</span></td>
-              <td>Competitor 2</td>
-              <td><strong>Rp 30.000</strong></td>
-              <td>
-                <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
-                <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
-              </td>
+              <td colspan="5" class="text-center">Belum ada data competitor</td>
             </tr>
+            @endforelse
           </tbody>
         </table>
       </div>
@@ -120,7 +123,7 @@
       <div class="row g-3 align-items-end">
         <div class="col-md-6">
           <label class="form-label">Nama Competitor</label>
-          <input type="text" name="competitor_name[]" class="form-control" list="competitorList" placeholder="Ketik nama competitor..." required>
+          <input type="text" name="competitor_name[]" class="form-control" placeholder="Ketik nama competitor..." required>
         </div>
         <div class="col-md-4">
           <label class="form-label">Harga</label>

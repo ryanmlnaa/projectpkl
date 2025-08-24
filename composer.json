@@ -8,6 +8,7 @@
     "require": {
         "php": "^8.2",
         "barryvdh/laravel-dompdf": "^3.1",
+        "elibyy/tcpdf-laravel": "^11.5",
         "laravel/framework": "^11.31",
         "laravel/tinker": "^2.9",
         "realrashid/sweet-alert": "^7.3"

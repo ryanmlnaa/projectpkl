@@ -3,14 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\Competitor;
+use App\Models\ReportActivity; // 🔹 Tambahkan import ini
 use Illuminate\Http\Request;
 
 class CompetitorController extends Controller
 {
     // 🔹 READ (Index)
-   public function index(Request $request)
+    public function index(Request $request)
     {
-        $query = Competitor::query(); // tanpa parameter
+        $query = Competitor::query();
 
         if ($request->has('cluster') && $request->cluster != '') {
             $query->where('cluster', $request->cluster);
@@ -27,14 +28,24 @@ class CompetitorController extends Controller
         $request->validate([
             'cluster' => 'required|string',
             'competitor_name' => 'required|array',
+            'paket' => 'nullable|array',
+            'kecepatan' => 'nullable|array',
+            'kuota' => 'nullable|array',
             'harga' => 'required|array',
+            'fitur_tambahan' => 'nullable|array',
+            'keterangan' => 'nullable|array',
         ]);
 
         foreach ($request->competitor_name as $key => $name) {
             Competitor::create([
-                'cluster' => $request->cluster,
+                'cluster'         => $request->cluster,
                 'competitor_name' => $name,
-                'harga' => $request->harga[$key],
+                'paket'           => $request->paket[$key] ?? null,
+                'kecepatan'       => $request->kecepatan[$key] ?? null,
+                'kuota'           => $request->kuota[$key] ?? null,
+                'harga'           => $request->harga[$key],
+                'fitur_tambahan'  => $request->fitur_tambahan[$key] ?? null,
+                'keterangan'      => $request->keterangan[$key] ?? null,
             ]);
         }
 
@@ -54,7 +65,12 @@ class CompetitorController extends Controller
         $request->validate([
             'cluster' => 'required|string',
             'competitor_name' => 'required|string',
+            'paket' => 'nullable|string',
+            'kecepatan' => 'nullable|string',
+            'kuota' => 'nullable|string',
             'harga' => 'required|numeric',
+            'fitur_tambahan' => 'nullable|string',
+            'keterangan' => 'nullable|string',
         ]);
 
         $competitor = Competitor::findOrFail($id);

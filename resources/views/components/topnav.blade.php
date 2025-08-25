@@ -49,8 +49,7 @@
           </a>
           <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbar-operational">
             <a class="dropdown-item" href="{{ asset('/') }}argonpro/pages/operational/input-pelanggan.html">Input Data Pelanggan</a>
-            <a class="dropdown-item" href="{{ asset('/') }}argonpro/pages/operational/cari-pelanggan.html">Cari Pelanggan</a>
-            <a class="dropdown-item" href="{{ asset('/') }}argonpro/pages/operational/kotak-distribusi.html">Kotak Distribusi</a>
+            <a class="dropdown-item" href="{{ asset('/') }}argonpro/pages/operational/cari-pelanggan.html">Cari Pelanggan & kode FAT</a>
           </div>
         </li>
 

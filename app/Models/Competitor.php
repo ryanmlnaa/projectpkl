@@ -12,6 +12,11 @@ class Competitor extends Model
     protected $fillable = [
         'cluster',
         'competitor_name',
-        'harga'
+        'paket',
+        'kecepatan',
+        'kuota',
+        'harga',
+        'fitur_tambahan',
+        'keterangan',
     ];
 }

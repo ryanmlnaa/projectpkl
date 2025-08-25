@@ -49,7 +49,7 @@
           </a>
           <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbar-operational">
            <!-- Update link menu menjadi: -->
-            <a class="dropdown-item" href="{{ route('report.operational.index') }}">Input Data Pelanggan</a>
+<a class="dropdown-item" href="{{ route('report.operational.index') }}">Input Data Pelanggan</a>
             <a class="dropdown-item" href="{{ asset('reports.customersearch.index') }}">Cari Pelanggan & kode FAT</a>
           </div>
         </li>

@@ -23,7 +23,6 @@ class Pelanggan extends Model
         'kode_fat',
     ];
 
-
     protected $casts = [
         'latitude' => 'decimal:7',
         'longitude' => 'decimal:7',

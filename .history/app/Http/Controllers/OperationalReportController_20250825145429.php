@@ -9,9 +9,7 @@ class OperationalReportController extends Controller
 {
     public function index()
     {
-        // Ambil data pelanggan agar bisa ditampilkan di tabel
-        $pelanggans = Pelanggan::orderBy('created_at', 'desc')->paginate(10);
-        return view('report.operational.index', compact('pelanggans'));
+        return view('report.operational.index'); // Ubah ke 'report' tanpa 's'
     }
 
     public function store(Request $request)
@@ -30,11 +28,17 @@ class OperationalReportController extends Controller
 
         try {
             Pelanggan::create($validated);
-            return redirect()->route('report.operational.index')
+            return redirect()->route('report.operational.index') // Ubah route name
                 ->with('success', "Data pelanggan {$validated['nama_pelanggan']} berhasil disimpan!");
         } catch (\Exception $e) {
             return back()->withInput()->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()]);
         }
+    }
+
+    public function show()
+    {
+        $pelanggans = Pelanggan::orderBy('created_at', 'desc')->paginate(10);
+        return view('report.operational.show', compact('pelanggans')); // Ubah ke 'report'
     }
 
     public function update(Request $request, $pelanggan)
@@ -55,7 +59,7 @@ class OperationalReportController extends Controller
 
         try {
             $pelangganData->update($validated);
-            return redirect()->route('report.operational.index')
+            return redirect()->route('report.operational.index') // Ubah route name
                 ->with('success', "Data pelanggan berhasil diperbarui!");
         } catch (\Exception $e) {
             return back()->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()]);

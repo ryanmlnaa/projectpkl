@@ -83,17 +83,17 @@ Route::get('/report-activity/export-pdf', [ReportActivityController::class, 'exp
 
     // ================== OPERATIONAL REPORT ROUTES ================== //
     // Route untuk Input Data Pelanggan
-        Route::prefix('report/operational')->name('report.operational.')->group(function () {
-        Route::get('/', [OperationalReportController::class, 'index'])->name('index');
-        Route::post('/', [OperationalReportController::class, 'store'])->name('store');
-        Route::get('/show', [OperationalReportController::class, 'show'])->name('show');
-        Route::put('/{pelanggan}', [OperationalReportController::class, 'update'])->name('update');
-        Route::delete('/{pelanggan}', [OperationalReportController::class, 'destroy'])->name('destroy');
-    });
+    Route::prefix('report/operational')->name('report.operational.')->group(function () {
+    Route::get('/', [OperationalReportController::class, 'index'])->name('index');
+    Route::post('/', [OperationalReportController::class, 'store'])->name('store');
+    Route::get('/show', [OperationalReportController::class, 'show'])->name('show');
+    Route::put('/{pelanggan}', [OperationalReportController::class, 'update'])->name('update');
+    Route::delete('/{pelanggan}', [OperationalReportController::class, 'destroy'])->name('destroy');
+});
 
-    Route::get('/customer/search', function() {
-        return view('customer.search');
-    })->name('customer.search');
+Route::get('/customer/search', function() {
+    return view('customer.search');
+})->name('customer.search');
 
 // Route untuk pencarian customer (jika ada)
 Route::get('/customer/search', function() {

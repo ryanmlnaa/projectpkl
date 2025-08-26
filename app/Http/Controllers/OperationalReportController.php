@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pelanggan;
+use App\Models\Competitor;
 use Illuminate\Http\Request;
 
 class OperationalReportController extends Controller
@@ -11,7 +12,25 @@ class OperationalReportController extends Controller
     {
         // Ambil data pelanggan agar bisa ditampilkan di tabel
         $pelanggans = Pelanggan::orderBy('created_at', 'desc')->paginate(10);
-        return view('report.operational.index', compact('pelanggans'));
+        
+        // Ambil data competitor untuk dropdown cluster dan kecepatan
+        $competitors = Competitor::select('cluster', 'kecepatan')->distinct()->get();
+        
+        return view('report.operational.index', compact('pelanggans', 'competitors'));
+    }
+
+    // Method untuk mendapatkan kecepatan berdasarkan cluster via AJAX
+    public function getKecepatanByCluster(Request $request)
+    {
+        $cluster = $request->get('cluster');
+        
+        $kecepatan = Competitor::where('cluster', $cluster)
+                              ->select('kecepatan')
+                              ->distinct()
+                              ->whereNotNull('kecepatan')
+                              ->pluck('kecepatan');
+        
+        return response()->json($kecepatan);
     }
 
     public function store(Request $request)

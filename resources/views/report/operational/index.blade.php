@@ -38,8 +38,24 @@
                         <input type="text" name="nama_pelanggan" class="form-control" value="{{ old('nama_pelanggan') }}" required>
                     </div>
                     <div class="col-md-3">
+                        <label class="form-label">Cluster *</label>
+                        <select name="cluster" id="cluster" class="form-control" required>
+                            <option value="">-- Pilih Cluster --</option>
+                            @php
+                                $uniqueClusters = $competitors->pluck('cluster')->unique();
+                            @endphp
+                            @foreach($uniqueClusters as $cluster)
+                                <option value="{{ $cluster }}" {{ old('cluster') == $cluster ? 'selected' : '' }}>
+                                    {{ $cluster }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-3">
                         <label class="form-label">Bandwidth *</label>
-                        <input type="text" name="bandwidth" class="form-control" placeholder="mis. 50 Mbps" value="{{ old('bandwidth') }}" required>
+                        <select name="bandwidth" id="bandwidth" class="form-control" required>
+                            <option value="">-- Pilih Kecepatan --</option>
+                        </select>
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">Nomor Telepon *</label>
@@ -48,16 +64,6 @@
                     <div class="col-md-6">
                         <label class="form-label">Alamat *</label>
                         <textarea name="alamat" rows="2" class="form-control" required>{{ old('alamat') }}</textarea>
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Cluster *</label>
-                        <select name="cluster" class="form-control" required>
-                            <option value="">-- Pilih Cluster --</option>
-                            <option value="Cluster A" {{ old('cluster') == 'Cluster A' ? 'selected' : '' }}>Cluster A</option>
-                            <option value="Cluster B" {{ old('cluster') == 'Cluster B' ? 'selected' : '' }}>Cluster B</option>
-                            <option value="Cluster C" {{ old('cluster') == 'Cluster C' ? 'selected' : '' }}>Cluster C</option>
-                            <option value="Cluster D" {{ old('cluster') == 'Cluster D' ? 'selected' : '' }}>Cluster D</option>
-                        </select>
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">Kode FAT</label>
@@ -84,7 +90,6 @@
                 <h5>Pilih Lokasi Pelanggan:</h5>
                 <div id="map" style="height:400px; width:100%; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.2);"></div>
             </div>
-
 
             {{-- TABEL DATA PELANGGAN --}}
             <div class="mt-4">
@@ -136,6 +141,7 @@
 <script>
   let map, marker;
 
+  // Initialize Google Maps
   function initMap() {
     const defaultLoc = { lat: -6.200000, lng: 106.816666 };
 
@@ -163,6 +169,56 @@
       document.getElementById("longitude").value = event.latLng.lng().toFixed(6);
     });
   }
+
+  // Dynamic Bandwidth based on Cluster
+  $(document).ready(function() {
+    $('#cluster').change(function() {
+      var selectedCluster = $(this).val();
+      var bandwidthSelect = $('#bandwidth');
+      
+      // Reset bandwidth options
+      bandwidthSelect.html('<option value="">-- Pilih Kecepatan --</option>');
+      
+      if (selectedCluster !== '') {
+        // AJAX call to get bandwidth options
+        $.ajax({
+          url: "{{ route('operational.getKecepatanByCluster') }}",
+          type: "GET",
+          data: {
+            cluster: selectedCluster,
+            _token: "{{ csrf_token() }}"
+          },
+          success: function(data) {
+            $.each(data, function(index, kecepatan) {
+              if (kecepatan) { // Only add non-null values
+                bandwidthSelect.append(
+                  '<option value="' + kecepatan + '">' + kecepatan + '</option>'
+                );
+              }
+            });
+          },
+          error: function() {
+            alert('Gagal mengambil data kecepatan');
+          }
+        });
+      }
+    });
+
+    // Auto-generate Kode FAT based on cluster
+    $('#cluster').change(function() {
+      var selectedCluster = $(this).val();
+      if (selectedCluster !== '') {
+        // Generate kode FAT format: FAT-[CLUSTER]-XX
+        var clusterCode = selectedCluster.replace('Cluster ', '');
+        var randomNum = Math.floor(Math.random() * 100).toString().padStart(2, '0');
+        var kodeFat = 'FAT-' + clusterCode + '-' + randomNum;
+        
+        $('#kode_fat').val(kodeFat);
+      } else {
+        $('#kode_fat').val('');
+      }
+    });
+  });
 </script>
 
 @endsection

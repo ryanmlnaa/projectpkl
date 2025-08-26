@@ -118,8 +118,23 @@ Route::get('/customer/search', function() {
         Route::get('/debug-storage', [ReportActivityController::class, 'debugStorage']);
         Route::get('/fix-storage', [ReportActivityController::class, 'fixStorage']);
     });
+// Existing routes
+Route::get('/report/operational', [OperationalReportController::class, 'index'])->name('report.operational.index');
+Route::post('/report/operational', [OperationalReportController::class, 'store'])->name('report.operational.store');
+Route::put('/report/operational/{pelanggan}', [OperationalReportController::class, 'update'])->name('report.operational.update');
+Route::delete('/report/operational/{pelanggan}', [OperationalReportController::class, 'destroy'])->name('report.operational.destroy');
 
+// New route for AJAX call
+Route::get('/operational/get-kecepatan', [OperationalReportController::class, 'getKecepatanByCluster'])->name('operational.getKecepatanByCluster');
+
+// Competitor routes
+Route::get('/competitor', [CompetitorController::class, 'index'])->name('competitor.index');
+Route::post('/competitor', [CompetitorController::class, 'store'])->name('competitor.store');
+Route::get('/competitor/{id}/edit', [CompetitorController::class, 'edit'])->name('competitor.edit');
+Route::put('/competitor/{id}', [CompetitorController::class, 'update'])->name('competitor.update');
+Route::delete('/competitor/{id}', [CompetitorController::class, 'destroy'])->name('competitor.destroy');
 // ================== FALLBACK ROUTE ================== //
 Route::fallback(function () {
     return redirect()->route('login');
 });
+

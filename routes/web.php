@@ -149,29 +149,23 @@ Route::middleware(['auth'])->prefix('customer')->name('customer.')->group(functi
         Route::get('/debug-storage', [ReportActivityController::class, 'debugStorage']);
         Route::get('/fix-storage', [ReportActivityController::class, 'fixStorage']);
     });
+// Existing routes
+Route::get('/report/operational', [OperationalReportController::class, 'index'])->name('report.operational.index');
+Route::post('/report/operational', [OperationalReportController::class, 'store'])->name('report.operational.store');
+Route::put('/report/operational/{pelanggan}', [OperationalReportController::class, 'update'])->name('report.operational.update');
+Route::delete('/report/operational/{pelanggan}', [OperationalReportController::class, 'destroy'])->name('report.operational.destroy');
 
- Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
-    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile/photo', [ProfileController::class, 'deletePhoto'])->name('profile.photo.delete');
-    
-    // Debug route (hapus setelah selesai debug)
-    Route::get('/test-user', function() {
-        $user = Auth::user();
-        return [
-            'id' => $user->id,
-            'name' => $user->name,
-            'email' => $user->email,
-            'profile_photo_path' => $user->profile_photo_path,
-            'file_exists_storage' => $user->profile_photo_path ? file_exists(storage_path('app/public/' . $user->profile_photo_path)) : false,
-            'storage_url' => $user->profile_photo_path ? Storage::url($user->profile_photo_path) : null,
-        ];
-    });
-    Route::get('/profile/change-password', [ProfileController::class, 'changePassword'])
-    ->name('profile.change.password');
+// New route for AJAX call
+Route::get('/operational/get-kecepatan', [OperationalReportController::class, 'getKecepatanByCluster'])->name('operational.getKecepatanByCluster');
 
-
-
+// Competitor routes
+Route::get('/competitor', [CompetitorController::class, 'index'])->name('competitor.index');
+Route::post('/competitor', [CompetitorController::class, 'store'])->name('competitor.store');
+Route::get('/competitor/{id}/edit', [CompetitorController::class, 'edit'])->name('competitor.edit');
+Route::put('/competitor/{id}', [CompetitorController::class, 'update'])->name('competitor.update');
+Route::delete('/competitor/{id}', [CompetitorController::class, 'destroy'])->name('competitor.destroy');
 // ================== FALLBACK ROUTE ================== //
 Route::fallback(function () {
     return redirect()->route('login');
 });
+

@@ -50,9 +50,20 @@
           <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbar-operational">
            <!-- Update link menu menjadi: -->
             <a class="dropdown-item" href="{{ route('report.operational.index') }}">Input Data Pelanggan</a>
-            <a class="dropdown-item" href="{{ asset('reports.customersearch.index') }}">Cari Pelanggan & kode FAT</a>
+           <a class="dropdown-item" href="{{ route('report.customer.search') }}">Cari Pelanggan & kode FAT</a>
           </div>
         </li>
+
+         <!-- Tambah User -->
+       <li class="nav-item dropdown">
+  <a class="nav-link dropdown-toggle text-dark" href="#" id="navbar-sales"
+     role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    <i class="ni ni-single-02 text-info mr-1"></i> User
+  </a>
+  <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbar-sales">
+    <a class="dropdown-item" href="{{ route('users.index') }}">Daftar User</a>
+  </div>
+</li>
 
         <!-- Export Data -->
         <li class="nav-item dropdown">
@@ -67,7 +78,11 @@
           </div>
         </li>
       </ul>
-
+<!-- Debug: Cek data user -->
+@php
+    $user = Auth::user();
+     //dd($user->profile_photo_path); // Uncomment untuk debug
+@endphp
       <!-- User Profile -->
       <ul class="navbar-nav align-items-center ml-4">
         <li class="nav-item dropdown">
@@ -75,18 +90,44 @@
              data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <div class="media align-items-center">
               <span class="avatar avatar-sm rounded-circle">
-                <img alt="Image placeholder" src="{{ asset('/') }}argonpro/assets/img/theme/team-4.jpg">
+                @if(Auth::user()->profile_photo_path)
+                  <img alt="Profile Image" src="{{ Storage::url(Auth::user()->profile_photo_path) }}" class="rounded-circle">
+                @else
+                  <img alt="Default Avatar" src="{{ asset('argonpro/assets/img/theme/team-4.jpg') }}" class="rounded-circle">
+                @endif
               </span>
               <div class="media-body ml-2 d-none d-lg-block">
-                <span class="mb-0 text-sm font-weight-bold">John Snow</span>
+                <span class="mb-0 text-sm font-weight-bold">{{ Auth::user()->name ?? 'User' }}</span>
               </div>
             </div>
           </a>
-          <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
-            <a href="#" class="dropdown-item">Profile</a>
-            <a href="#" class="dropdown-item">Settings</a>
-            <div class="dropdown-divider"></div>
-            <a href="#" class="dropdown-item">Logout</a>
+         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
+    <!-- Profile Link -->
+    <a href="{{ route('profile.show') }}" class="dropdown-item">
+        <i class="ni ni-single-02"></i>
+        <span>Profile</span>
+    </a>
+    
+    <!-- Settings/Change Password Link
+    <a href="{{ route('profile.change.password') }}" class="dropdown-item">
+        <i class="ni ni-settings-gear-65"></i>
+        <span>Settings</span>
+    </a>
+     -->
+    <div class="dropdown-divider"></div>
+    
+    <!-- Logout Link -->
+    <a href="{{ route('logout') }}" class="dropdown-item" 
+       onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+        <i class="ni ni-user-run"></i>
+        <span>Logout</span>
+    </a>
+    
+    <!-- Hidden Logout Form -->
+    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+        @csrf
+    </form>
+</div>
           </div>
         </li>
       </ul>
@@ -113,6 +154,13 @@
     }
     .navbar-nav .dropdown {
       position: relative;
+    }
+
+    /* Styling untuk avatar image */
+    .avatar img {
+      width: 36px;
+      height: 36px;
+      object-fit: cover;
     }
 
   </style>

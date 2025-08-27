@@ -126,7 +126,7 @@
                     <input name="password" id="passwordField" class="form-control" placeholder="Password" type="password" required>
                     <div class="input-group-append">
                       <span class="input-group-text" id="togglePassword" style="cursor: pointer;">
-                        <i class="ni ni-eye-17" id="eyeIcon"></i>
+                        <i class="ni ni-fat-remove" id="eyeIcon"></i>
                       </span>
                     </div>
                   </div>
@@ -186,11 +186,11 @@
         const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
         passwordField.setAttribute('type', type);
         
-        // Toggle eye icon
+        // Toggle eye icon - menggunakan icon yang sama dengan register
         if (type === 'text') {
-          eyeIcon.className = 'ni ni-satisfied'; // Eye closed icon
+          eyeIcon.className = 'ni ni-fat-add'; // Password terlihat (mata terbuka)
         } else {
-          eyeIcon.className = 'ni ni-eye-17'; // Eye open icon
+          eyeIcon.className = 'ni ni-fat-remove'; // Password tersembunyi (mata tertutup)
         }
       });
 

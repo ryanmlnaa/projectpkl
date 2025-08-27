@@ -14,6 +14,8 @@ return new class extends Migration
             $table->string('nama_pelanggan', 255);
             $table->string('bandwidth', 100);
             $table->text('alamat');
+            $table->string('provinsi', 100); // Tambahan field provinsi
+            $table->string('kabupaten', 100); // Tambahan field kabupaten
             $table->decimal('latitude', 10, 7)->nullable();
             $table->decimal('longitude', 10, 7)->nullable();
             $table->string('nomor_telepon', 50);

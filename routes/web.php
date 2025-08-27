@@ -7,6 +7,9 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CompetitorController;
 use App\Http\Controllers\OperationalReportController;
 use App\Http\Controllers\ReportActivityController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\CustomerSearchController;
 
 // ================== ROOT REDIRECT ================== //
 Route::get('/', function () {
@@ -41,7 +44,16 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/user/dashboard', function () {
         return view('dashboard');
+
+        // route user
     })->middleware('role:user')->name('user.dashboard');
+        Route::get('/users', [UserController::class, 'index'])->name('users.index');
+        Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
+        Route::post('/users', [UserController::class, 'store'])->name('users.store');
+        Route::get('/users/{id}', [UserController::class, 'show'])->name('users.show');
+        Route::get('/users/{id}/edit', [UserController::class, 'edit'])->name('users.edit');
+        Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update');
+        Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
 
     // ================== REPORT ACTIVITY ROUTES ================== //
     Route::prefix('reports')->name('reports.')->group(function () {
@@ -80,31 +92,50 @@ Route::get('/report-activity/export-pdf', [ReportActivityController::class, 'exp
 
     // ================== COMPETITOR ROUTES ================== //
     Route::resource('competitor', CompetitorController::class);
+// ================== OPERATIONAL REPORT ROUTES ================== //
+// Route untuk Input Data Pelanggan
+Route::prefix('report/operational')->name('report.operational.')->group(function () {
+    Route::get('/', [OperationalReportController::class, 'index'])->name('index');
+    Route::post('/', [OperationalReportController::class, 'store'])->name('store');
+    Route::get('/show', [OperationalReportController::class, 'show'])->name('show');
+    Route::put('/{pelanggan}', [OperationalReportController::class, 'update'])->name('update');
+    Route::delete('/{pelanggan}', [OperationalReportController::class, 'destroy'])->name('destroy');
+    
+    // ========== MISSING API ENDPOINTS - ADD THESE ========== //
+    Route::get('/get-kabupaten', [OperationalReportController::class, 'getKabupaten'])->name('get-kabupaten');
+    Route::get('/get-kode-fat', [OperationalReportController::class, 'getKodeFat'])->name('get-kode-fat');
+});
+    // Route::get('/customer/search', function() {
+    //     return view('customer.search');
+    // })->name('customer.search');
 
-    // ================== OPERATIONAL REPORT ROUTES ================== //
-    // Route untuk Input Data Pelanggan
-        Route::prefix('report/operational')->name('report.operational.')->group(function () {
-        Route::get('/', [OperationalReportController::class, 'index'])->name('index');
-        Route::post('/', [OperationalReportController::class, 'store'])->name('store');
-        Route::get('/show', [OperationalReportController::class, 'show'])->name('show');
-        Route::put('/{pelanggan}', [OperationalReportController::class, 'update'])->name('update');
-        Route::delete('/{pelanggan}', [OperationalReportController::class, 'destroy'])->name('destroy');
-    });
+// Perbaiki route pertama (typo: repot -> report)
+Route::get('/report/customer/search', function() {
+    return view('report.customer.search'); // Buat view ini jika belum ada
+})->name('report.customer.search');
 
-    Route::get('/customer/search', function() {
-        return view('customer.search');
-    })->name('customer.search');
+// Route untuk Customer dengan middleware auth
+Route::middleware(['auth'])->prefix('customer')->name('customer.')->group(function () {
+    // Route untuk search customer
+    Route::get('/search', [App\Http\Controllers\CustomerSearchController::class, 'index'])->name('search');
+    
+    // Route untuk edit customer - perbaiki pattern URL
+    Route::get('/{id}/edit', [App\Http\Controllers\CustomerSearchController::class, 'edit'])->name('edit');
+    Route::put('/{id}', [App\Http\Controllers\CustomerSearchController::class, 'update'])->name('update');
+    Route::delete('/{id}', [App\Http\Controllers\CustomerSearchController::class, 'destroy'])->name('destroy');
+    
+    // Map and Location Routes - perbaiki URL pattern
+    Route::get('/map', [App\Http\Controllers\CustomerSearchController::class, 'showMap'])->name('map');
+    
+    // API Routes for dropdown data
+    Route::get('/api/provinsi', [App\Http\Controllers\CustomerSearchController::class, 'getProvinsi'])->name('api.provinsi');
+    Route::get('/api/kabupaten', [App\Http\Controllers\CustomerSearchController::class, 'getKabupaten'])->name('api.kabupaten');
+    Route::get('/api/statistics', [App\Http\Controllers\CustomerSearchController::class, 'getStatistics'])->name('api.statistics');
 
-// Route untuk pencarian customer (jika ada)
-Route::get('/customer/search', function() {
-    return view('customer.search'); // Buat view ini jika belum ada
-})->name('customer.search');
-
-        // Route untuk Cari Pelanggan & Kode FAT
-    Route::prefix('customer')->name('customer.')->group(function () {
-        Route::get('/search', [App\Http\Controllers\CustomerSearchController::class, 'index'])->name('search');
-        Route::put('/update/{id}', [App\Http\Controllers\CustomerSearchController::class, 'update'])->name('update');
-        Route::delete('/delete/{id}', [App\Http\Controllers\CustomerSearchController::class, 'destroy'])->name('destroy');
+    Route::get('/search/fat', [App\Http\Controllers\CustomerSearchController::class, 'searchByFAT'])->name('search.fat');
+    Route::get('/search/advanced', [App\Http\Controllers\CustomerSearchController::class, 'advancedSearch'])->name('search.advanced');
+    Route::get('/statistics', [App\Http\Controllers\CustomerSearchController::class, 'getStatistics'])->name('statistics');
+    Route::post('/export', [App\Http\Controllers\CustomerSearchController::class, 'exportSearch'])->name('export');
 
         // Route tambahan untuk fitur advanced
         Route::get('/search/fat', [App\Http\Controllers\CustomerSearchController::class, 'searchByFAT'])->name('search.fat');
@@ -118,6 +149,27 @@ Route::get('/customer/search', function() {
         Route::get('/debug-storage', [ReportActivityController::class, 'debugStorage']);
         Route::get('/fix-storage', [ReportActivityController::class, 'fixStorage']);
     });
+
+ Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile/photo', [ProfileController::class, 'deletePhoto'])->name('profile.photo.delete');
+    
+    // Debug route (hapus setelah selesai debug)
+    Route::get('/test-user', function() {
+        $user = Auth::user();
+        return [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'profile_photo_path' => $user->profile_photo_path,
+            'file_exists_storage' => $user->profile_photo_path ? file_exists(storage_path('app/public/' . $user->profile_photo_path)) : false,
+            'storage_url' => $user->profile_photo_path ? Storage::url($user->profile_photo_path) : null,
+        ];
+    });
+    Route::get('/profile/change-password', [ProfileController::class, 'changePassword'])
+    ->name('profile.change.password');
+
+
 
 // ================== FALLBACK ROUTE ================== //
 Route::fallback(function () {

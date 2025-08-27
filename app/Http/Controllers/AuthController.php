@@ -274,7 +274,7 @@ class AuthController extends Controller
 
         return $user->role === 'admin'
             ? redirect()->route('admin.dashboard')
-            : redirect()->route('dashboard');
+            : redirect()->route('login');
     }
 
     public function login(Request $request)

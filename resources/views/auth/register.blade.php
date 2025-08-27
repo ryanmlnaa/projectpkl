@@ -115,7 +115,12 @@
                     <div class="input-group-prepend">
                       <span class="input-group-text"><i class="ni ni-lock-circle-open"></i></span>
                     </div>
-                    <input name="password" class="form-control" placeholder="Password" type="password" required>
+                    <input name="password" id="password" class="form-control" placeholder="Password" type="password" required>
+                    <div class="input-group-append">
+                      <span class="input-group-text" style="cursor: pointer;" onclick="togglePassword('password', 'eyePassword')">
+                        <i class="ni ni-fat-remove" id="eyePassword"></i>
+                      </span>
+                    </div>
                   </div>
                 </div>
 
@@ -124,7 +129,12 @@
                     <div class="input-group-prepend">
                       <span class="input-group-text"><i class="ni ni-lock-circle-open"></i></span>
                     </div>
-                    <input name="password_confirmation" class="form-control" placeholder="Konfirmasi Password" type="password" required>
+                    <input name="password_confirmation" id="password_confirmation" class="form-control" placeholder="Konfirmasi Password" type="password" required>
+                    <div class="input-group-append">
+                      <span class="input-group-text" style="cursor: pointer;" onclick="togglePassword('password_confirmation', 'eyePasswordConfirm')">
+                        <i class="ni ni-fat-remove" id="eyePasswordConfirm"></i>
+                      </span>
+                    </div>
                   </div>
                 </div>
 
@@ -138,13 +148,28 @@
             <div class="col-6">
               <a href="{{ route('login') }}" class="text-light"><small>Sudah punya akun? Login</small></a>
             </div>
-            <div class="col-6 text-right">
+            <!-- <div class="col-6 text-right">
               <a href="{{ route('dashboard') }}" class="text-light"><small>Kembali ke Dashboard</small></a>
-            </div>
+            </div> -->
           </div>
         </div>
       </div>
     </div>
   </div>
+
+  <script>
+    function togglePassword(inputId, iconId) {
+      const passwordInput = document.getElementById(inputId);
+      const eyeIcon = document.getElementById(iconId);
+      
+      if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        eyeIcon.className = "ni ni-fat-add"; // Icon mata terbuka
+      } else {
+        passwordInput.type = "password";
+        eyeIcon.className = "ni ni-fat-remove"; // Icon mata tertutup
+      }
+    }
+  </script>
 </body>
 @endsection

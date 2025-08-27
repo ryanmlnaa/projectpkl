@@ -13,8 +13,9 @@ class CustomerSearchController extends Controller
      */
     public function index(Request $request)
     {
-        $filterField = $request->get('filter_field');
-        $filterQuery = $request->get('filter_query');
+        // Pastikan variable selalu ada, bahkan jika kosong
+        $filterField = $request->get('filter_field', '');
+        $filterQuery = $request->get('filter_query', '');
 
         // Query builder untuk pencarian
         $query = Pelanggan::query();
@@ -33,6 +34,12 @@ class CustomerSearchController extends Controller
                     break;
                 case 'alamat':
                     $query->where('alamat', 'like', "%{$filterQuery}%");
+                    break;
+                case 'provinsi':
+                    $query->where('provinsi', 'like', "%{$filterQuery}%");
+                    break;
+                case 'kabupaten':
+                    $query->where('kabupaten', 'like', "%{$filterQuery}%");
                     break;
                 case 'nomor_telepon':
                     $query->where('nomor_telepon', 'like', "%{$filterQuery}%");
@@ -56,6 +63,8 @@ class CustomerSearchController extends Controller
                           ->orWhere('nama_pelanggan', 'like', "%{$filterQuery}%")
                           ->orWhere('bandwidth', 'like', "%{$filterQuery}%")
                           ->orWhere('alamat', 'like', "%{$filterQuery}%")
+                          ->orWhere('provinsi', 'like', "%{$filterQuery}%")
+                          ->orWhere('kabupaten', 'like', "%{$filterQuery}%")
                           ->orWhere('nomor_telepon', 'like', "%{$filterQuery}%")
                           ->orWhere('cluster', 'like', "%{$filterQuery}%")
                           ->orWhere('kode_fat', 'like', "%{$filterQuery}%");
@@ -67,7 +76,16 @@ class CustomerSearchController extends Controller
         // Order by latest dan paginate
         $pelanggans = $query->orderBy('created_at', 'desc')->paginate(15);
 
-        return view('customer.search', compact('pelanggans', 'filterField', 'filterQuery'));
+        return view('report.customer.search', compact('pelanggans', 'filterField', 'filterQuery'));
+    }
+
+    /**
+     * Tampilkan form edit pelanggan untuk modal
+     */
+    public function edit($id)
+    {
+        $pelanggan = Pelanggan::findOrFail($id);
+        return view('report.customer.edit-form', compact('pelanggan'));
     }
 
     /**
@@ -79,8 +97,10 @@ class CustomerSearchController extends Controller
             'id_pelanggan'   => 'required|string|max:100|unique:pelanggans,id_pelanggan,' . $id,
             'nama_pelanggan' => 'required|string|max:255',
             'bandwidth'      => 'required|string|max:100',
-            'nomor_telepon'  => 'required|string|max:50',
             'alamat'         => 'required|string',
+            'provinsi'       => 'required|string|max:100',
+            'kabupaten'      => 'required|string|max:100',
+            'nomor_telepon'  => 'required|string|max:50',
             'cluster'        => 'required|string|max:100',
             'latitude'       => 'nullable|numeric|between:-90,90',
             'longitude'      => 'nullable|numeric|between:-180,180',
@@ -90,8 +110,10 @@ class CustomerSearchController extends Controller
             'id_pelanggan.unique' => 'ID Pelanggan sudah digunakan oleh pelanggan lain',
             'nama_pelanggan.required' => 'Nama Pelanggan wajib diisi',
             'bandwidth.required' => 'Bandwidth wajib diisi',
-            'nomor_telepon.required' => 'Nomor Telepon wajib diisi',
             'alamat.required' => 'Alamat wajib diisi',
+            'provinsi.required' => 'Provinsi wajib dipilih',
+            'kabupaten.required' => 'Kabupaten wajib dipilih',
+            'nomor_telepon.required' => 'Nomor Telepon wajib diisi',
             'cluster.required' => 'Cluster wajib dipilih',
             'latitude.between' => 'Latitude harus antara -90 sampai 90',
             'longitude.between' => 'Longitude harus antara -180 sampai 180',
@@ -101,10 +123,10 @@ class CustomerSearchController extends Controller
             $pelanggan = Pelanggan::findOrFail($id);
             $pelanggan->update($validated);
 
-            return back()->with('success', "Data pelanggan {$validated['nama_pelanggan']} berhasil diperbarui!");
+            return redirect()->back()->with('success', "Data pelanggan {$validated['nama_pelanggan']} berhasil diperbarui!");
 
         } catch (\Exception $e) {
-            return back()->withErrors(['error' => 'Terjadi kesalahan saat memperbarui data: ' . $e->getMessage()]);
+            return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan saat memperbarui data: ' . $e->getMessage()]);
         }
     }
 
@@ -119,11 +141,24 @@ class CustomerSearchController extends Controller
 
             $pelanggan->delete();
 
-            return back()->with('success', "Data pelanggan {$nama} berhasil dihapus!");
+            return redirect()->back()->with('success', "Data pelanggan {$nama} berhasil dihapus!");
 
         } catch (\Exception $e) {
-            return back()->withErrors(['error' => 'Terjadi kesalahan saat menghapus data: ' . $e->getMessage()]);
+            return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan saat menghapus data: ' . $e->getMessage()]);
         }
+    }
+
+    /**
+     * Tampilkan pelanggan di peta
+     */
+    public function showMap(Request $request)
+    {
+        // Ambil data pelanggan yang memiliki koordinat
+        $pelanggans = Pelanggan::whereNotNull('latitude')
+                              ->whereNotNull('longitude')
+                              ->get();
+
+        return view('report.customer.map', compact('pelanggans'));
     }
 
     /**
@@ -131,7 +166,9 @@ class CustomerSearchController extends Controller
      */
     public function searchByFAT(Request $request)
     {
-        $kodeFAT = $request->get('kode_fat');
+        $kodeFAT = $request->get('kode_fat', '');
+        $filterField = 'kode_fat';
+        $filterQuery = $kodeFAT;
 
         $query = Pelanggan::query();
 
@@ -141,9 +178,7 @@ class CustomerSearchController extends Controller
 
         $pelanggans = $query->orderBy('created_at', 'desc')->paginate(15);
 
-        return view('customer.search', compact('pelanggans'))
-            ->with('filterField', 'kode_fat')
-            ->with('filterQuery', $kodeFAT);
+        return view('report.customer.search', compact('pelanggans', 'filterField', 'filterQuery'));
     }
 
     /**
@@ -153,9 +188,24 @@ class CustomerSearchController extends Controller
     {
         $query = Pelanggan::query();
 
+        // Set default values
+        $filterField = '';
+        $filterQuery = '';
+        $isAdvancedSearch = true;
+
         // Filter berdasarkan cluster
         if ($request->filled('cluster_filter')) {
             $query->where('cluster', $request->cluster_filter);
+        }
+
+        // Filter berdasarkan provinsi
+        if ($request->filled('provinsi_filter')) {
+            $query->where('provinsi', $request->provinsi_filter);
+        }
+
+        // Filter berdasarkan kabupaten
+        if ($request->filled('kabupaten_filter')) {
+            $query->where('kabupaten', $request->kabupaten_filter);
         }
 
         // Filter berdasarkan range bandwidth
@@ -200,19 +250,40 @@ class CustomerSearchController extends Controller
 
         $pelanggans = $query->orderBy('created_at', 'desc')->paginate(15);
 
-        return view('customer.search', compact('pelanggans'))
-            ->with('isAdvancedSearch', true);
+        return view('report.customer.search', compact('pelanggans', 'filterField', 'filterQuery', 'isAdvancedSearch'));
     }
 
     /**
-     * Export data hasil pencarian (bonus feature)
+     * Get data untuk populate dropdown provinsi
      */
-    public function exportSearch(Request $request)
+    public function getProvinsi()
     {
-        // Implementasi export ke Excel/CSV bisa ditambahkan di sini
-        // Menggunakan library seperti Laravel Excel
+        $provinsi = Pelanggan::select('provinsi')
+            ->distinct()
+            ->whereNotNull('provinsi')
+            ->where('provinsi', '!=', '')
+            ->orderBy('provinsi')
+            ->get();
+
+        return response()->json($provinsi);
+    }
+
+    /**
+     * Get data kabupaten berdasarkan provinsi
+     */
+    public function getKabupaten(Request $request)
+    {
+        $provinsi = $request->get('provinsi');
         
-        return back()->with('info', 'Fitur export akan segera tersedia!');
+        $kabupaten = Pelanggan::select('kabupaten')
+            ->distinct()
+            ->where('provinsi', $provinsi)
+            ->whereNotNull('kabupaten')
+            ->where('kabupaten', '!=', '')
+            ->orderBy('kabupaten')
+            ->get();
+
+        return response()->json($kabupaten);
     }
 
     /**
@@ -225,8 +296,15 @@ class CustomerSearchController extends Controller
             'customers_with_fat' => Pelanggan::whereNotNull('kode_fat')->where('kode_fat', '!=', '')->count(),
             'customers_with_coordinates' => Pelanggan::whereNotNull('latitude')->whereNotNull('longitude')->count(),
             'clusters' => Pelanggan::select('cluster', DB::raw('count(*) as total'))->groupBy('cluster')->get(),
+            'provinsi' => Pelanggan::select('provinsi', DB::raw('count(*) as total'))->groupBy('provinsi')->get(),
+            'kabupaten' => Pelanggan::select('kabupaten', 'provinsi', DB::raw('count(*) as total'))->groupBy('kabupaten', 'provinsi')->get(),
         ];
 
         return response()->json($stats);
+    }
+
+    public function __construct()
+    {
+        $this->middleware('auth');
     }
 }

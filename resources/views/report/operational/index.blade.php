@@ -38,20 +38,6 @@
                         <input type="text" name="nama_pelanggan" class="form-control" value="{{ old('nama_pelanggan') }}" required>
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label">Cluster *</label>
-                        <select name="cluster" id="cluster" class="form-control" required>
-                            <option value="">-- Pilih Cluster --</option>
-                            @php
-                                $uniqueClusters = $competitors->pluck('cluster')->unique();
-                            @endphp
-                            @foreach($uniqueClusters as $cluster)
-                                <option value="{{ $cluster }}" {{ old('cluster') == $cluster ? 'selected' : '' }}>
-                                    {{ $cluster }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-3">
                         <label class="form-label">Bandwidth *</label>
                         <select name="bandwidth" class="form-control" required>
                             <option value="">-- Pilih Kecepatan --</option>

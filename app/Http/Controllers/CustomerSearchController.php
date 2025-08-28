@@ -71,6 +71,19 @@ class CustomerSearchController extends Controller
                     });
                     break;
             }
+        } elseif ($filterQuery && !$filterField) {
+            // Search di semua field jika hanya ada query tanpa field spesifik
+            $query->where(function($q) use ($filterQuery) {
+                $q->where('id_pelanggan', 'like', "%{$filterQuery}%")
+                  ->orWhere('nama_pelanggan', 'like', "%{$filterQuery}%")
+                  ->orWhere('bandwidth', 'like', "%{$filterQuery}%")
+                  ->orWhere('alamat', 'like', "%{$filterQuery}%")
+                  ->orWhere('provinsi', 'like', "%{$filterQuery}%")
+                  ->orWhere('kabupaten', 'like', "%{$filterQuery}%")
+                  ->orWhere('nomor_telepon', 'like', "%{$filterQuery}%")
+                  ->orWhere('cluster', 'like', "%{$filterQuery}%")
+                  ->orWhere('kode_fat', 'like', "%{$filterQuery}%");
+            });
         }
 
         // Order by latest dan paginate
@@ -84,8 +97,20 @@ class CustomerSearchController extends Controller
      */
     public function edit($id)
     {
-        $pelanggan = Pelanggan::findOrFail($id);
-        return view('report.customer.edit-form', compact('pelanggan'));
+        try {
+            $pelanggan = Pelanggan::findOrFail($id);
+            
+            if (request()->ajax()) {
+                return view('report.customer.edit-form', compact('pelanggan'))->render();
+            }
+            
+            return view('report.customer.edit-form', compact('pelanggan'));
+        } catch (\Exception $e) {
+            if (request()->ajax()) {
+                return response()->json(['error' => 'Data pelanggan tidak ditemukan'], 404);
+            }
+            return redirect()->back()->withErrors(['error' => 'Data pelanggan tidak ditemukan']);
+        }
     }
 
     /**
@@ -123,28 +148,65 @@ class CustomerSearchController extends Controller
             $pelanggan = Pelanggan::findOrFail($id);
             $pelanggan->update($validated);
 
-            return redirect()->back()->with('success', "Data pelanggan {$validated['nama_pelanggan']} berhasil diperbarui!");
+            if (request()->ajax()) {
+                return response()->json(['success' => true, 'message' => "Data pelanggan {$validated['nama_pelanggan']} berhasil diperbarui!"]);
+            }
+
+            // Redirect ke halaman report/customer/search dengan mempertahankan filter jika ada
+            return redirect()
+                ->route('customer.search', [
+                    'filter_field' => $request->get('filter_field'),
+                    'filter_query' => $request->get('filter_query')
+                ])
+                ->with('success', "Data pelanggan {$validated['nama_pelanggan']} berhasil diperbarui!");
 
         } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan saat memperbarui data: ' . $e->getMessage()]);
+            if (request()->ajax()) {
+                return response()->json(['error' => 'Terjadi kesalahan saat memperbarui data: ' . $e->getMessage()], 500);
+            }
+            
+            // Jika error, tetap redirect ke halaman search
+            return redirect()
+                ->route('customer.search')
+                ->withErrors(['error' => 'Terjadi kesalahan saat memperbarui data: ' . $e->getMessage()]);
         }
     }
 
     /**
      * Hapus data pelanggan dari halaman pencarian
+     * FIXED: Method destroy yang akan dipanggil oleh JavaScript
      */
     public function destroy($id)
     {
         try {
+            \Log::info('Delete request received for ID: ' . $id);
+            
             $pelanggan = Pelanggan::findOrFail($id);
             $nama = $pelanggan->nama_pelanggan;
 
             $pelanggan->delete();
+            
+            \Log::info('Customer deleted successfully: ' . $nama);
 
-            return redirect()->back()->with('success', "Data pelanggan {$nama} berhasil dihapus!");
+            // Return JSON response untuk AJAX request
+            return response()->json([
+                'success' => true, 
+                'message' => "Data pelanggan {$nama} berhasil dihapus!"
+            ], 200);
 
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            \Log::error('Customer not found: ' . $id);
+            return response()->json([
+                'success' => false, 
+                'message' => 'Data pelanggan tidak ditemukan.'
+            ], 404);
+            
         } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan saat menghapus data: ' . $e->getMessage()]);
+            \Log::error('Error deleting customer: ' . $e->getMessage());
+            return response()->json([
+                'success' => false, 
+                'message' => 'Terjadi kesalahan saat menghapus data: ' . $e->getMessage()
+            ], 500);
         }
     }
 
@@ -156,9 +218,34 @@ class CustomerSearchController extends Controller
         // Ambil data pelanggan yang memiliki koordinat
         $pelanggans = Pelanggan::whereNotNull('latitude')
                               ->whereNotNull('longitude')
+                              ->where('latitude', '!=', '')
+                              ->where('longitude', '!=', '')
                               ->get();
 
         return view('report.customer.map', compact('pelanggans'));
+    }
+
+    /**
+     * Get detail pelanggan untuk modal (AJAX)
+     */
+    public function getDetail($id)
+    {
+        try {
+            $pelanggan = Pelanggan::findOrFail($id);
+            
+            $html = view('report.customer.detail-modal', compact('pelanggan'))->render();
+            
+            if (request()->ajax()) {
+                return response()->json(['html' => $html]);
+            }
+            
+            return $html;
+        } catch (\Exception $e) {
+            if (request()->ajax()) {
+                return response()->json(['error' => 'Data tidak ditemukan'], 404);
+            }
+            return response('Data tidak ditemukan', 404);
+        }
     }
 
     /**

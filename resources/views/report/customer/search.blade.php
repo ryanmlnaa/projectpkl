@@ -251,7 +251,7 @@
                             </thead>
                             <tbody>
                                 @foreach($pelanggans as $index => $pelanggan)
-                                <tr>
+                                <tr id="row-{{ $pelanggan->id }}">
                                     <td>{{ $pelanggans->firstItem() + $index }}</td>
                                     <td>
                                         <span class="fw-semibold text-primary">{{ $pelanggan->id_pelanggan }}</span>
@@ -291,19 +291,17 @@
                                     </td>
                                     <td>
                                         <div class="btn-group btn-group-sm">
-                                            <button type="button" class="btn btn-outline-primary" 
-                                                    onclick="editPelanggan({{ $pelanggan->id }})" 
-                                                    title="Edit">
+                                            <a href="{{ route('customer.edit', $pelanggan->id) }}" class="btn btn-outline-primary" title="Edit">
                                                 <i class="fas fa-edit"></i>
-                                            </button>
+                                            </a>
                                             <button type="button" class="btn btn-outline-danger" 
-                                                    onclick="deletePelanggan({{ $pelanggan->id }}, '{{ $pelanggan->nama_pelanggan }}')" 
+                                                    onclick="deletePelanggan({{ $pelanggan->id }}, '{{ addslashes($pelanggan->nama_pelanggan) }}')" 
                                                     title="Hapus">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                             @if($pelanggan->latitude && $pelanggan->longitude)
                                             <button type="button" class="btn btn-outline-info" 
-                                                    onclick="viewLocation({{ $pelanggan->latitude }}, {{ $pelanggan->longitude }}, '{{ $pelanggan->nama_pelanggan }}')" 
+                                                    onclick="viewLocation({{ $pelanggan->latitude }}, {{ $pelanggan->longitude }}, '{{ addslashes($pelanggan->nama_pelanggan) }}')" 
                                                     title="Lihat Lokasi">
                                                 <i class="fas fa-map-marker-alt"></i>
                                             </button>
@@ -354,16 +352,28 @@
     @endif
 </div>
 
-<!-- Edit Modal -->
-<div class="modal fade" id="editModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
+<!-- Modal Konfirmasi Delete -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Edit Data Pelanggan</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <h5 class="modal-title" id="deleteModalLabel">
+                    <i class="fas fa-exclamation-triangle text-warning me-2"></i>Konfirmasi Hapus
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" id="editModalBody">
-                <!-- Form will be loaded here -->
+            <div class="modal-body">
+                <p>Apakah Anda yakin ingin menghapus data pelanggan:</p>
+                <div class="alert alert-warning">
+                    <strong id="customerName"></strong>
+                </div>
+                <p class="text-muted"><small>Tindakan ini tidak dapat dibatalkan.</small></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">
+                    <i class="fas fa-trash me-1"></i>Hapus
+                </button>
             </div>
         </div>
     </div>
@@ -373,58 +383,234 @@
 
 @push('scripts')
 <script>
+// Global variables
+let currentDeleteId = null;
+
+// DOM Ready
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto focus search input
+    const searchInput = document.getElementById('filter_query');
+    if (searchInput && !searchInput.value) {
+        searchInput.focus();
+    }
+    
+    // Pastikan ada CSRF token di meta tag
+    if (!document.querySelector('meta[name="csrf-token"]')) {
+        const metaTag = document.createElement('meta');
+        metaTag.name = 'csrf-token';
+        metaTag.content = '{{ csrf_token() }}';
+        document.head.appendChild(metaTag);
+    }
+    
+    // Setup delete confirmation modal
+    const confirmDeleteBtn = document.getElementById('confirmDelete');
+    if (confirmDeleteBtn) {
+        confirmDeleteBtn.addEventListener('click', function() {
+            if (currentDeleteId) {
+                performDelete(currentDeleteId);
+                // Close modal
+                const deleteModalEl = document.getElementById('deleteModal');
+                const deleteModal = bootstrap.Modal.getInstance(deleteModalEl);
+                if (deleteModal) {
+                    deleteModal.hide();
+                }
+            }
+        });
+    }
+});
+
 function showBasicSearch() {
     document.getElementById('basicSearchForm').style.display = 'block';
     document.getElementById('advancedSearchForm').style.display = 'none';
+    
+    // Update button states
+    const buttons = document.querySelectorAll('.btn-group-sm .btn');
+    buttons.forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
 }
 
 function showAdvancedSearch() {
     document.getElementById('basicSearchForm').style.display = 'none';
     document.getElementById('advancedSearchForm').style.display = 'block';
-}
-
-function editPelanggan(id) {
-    // Load edit form via AJAX
-    fetch(`{{ url('/customer') }}/${id}/edit`)
-        .then(response => response.text())
-        .then(html => {
-            document.getElementById('editModalBody').innerHTML = html;
-            new bootstrap.Modal(document.getElementById('editModal')).show();
-        })
-        .catch(error => {
-            alert('Gagal memuat form edit');
-            console.error('Error:', error);
-        });
+    
+    // Update button states
+    const buttons = document.querySelectorAll('.btn-group-sm .btn');
+    buttons.forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
 }
 
 function deletePelanggan(id, nama) {
-    if (confirm(`Apakah Anda yakin ingin menghapus data pelanggan "${nama}"?`)) {
-        // Create form and submit
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = `{{ url('/customer') }}/${id}`;
+    currentDeleteId = id;
+    document.getElementById('customerName').textContent = nama;
+    
+    // Show modal
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    deleteModal.show();
+}
+
+function performDelete(id) {
+    // Show loading state
+    const deleteBtn = document.getElementById('confirmDelete');
+    const originalText = deleteBtn.innerHTML;
+    deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Menghapus...';
+    deleteBtn.disabled = true;
+    
+    // Get CSRF token
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+    if (!csrfToken) {
+        showAlert('CSRF token tidak ditemukan. Silakan refresh halaman dan coba lagi.', 'error');
+        resetDeleteButton(deleteBtn, originalText);
+        return;
+    }
+    
+    // PERBAIKAN: Gunakan URL yang sesuai dengan route yang ada di controller
+    const deleteUrl = `/customer/search/${id}`;
+    
+    // Kirim request delete via fetch
+    fetch(deleteUrl, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRF-TOKEN': csrfToken,
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        console.log('Response status:', response.status);
         
-        const csrfToken = document.createElement('input');
-        csrfToken.type = 'hidden';
-        csrfToken.name = '_token';
-        csrfToken.value = '{{ csrf_token() }}';
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Delete response:', data);
         
-        const methodField = document.createElement('input');
-        methodField.type = 'hidden';
-        methodField.name = '_method';
-        methodField.value = 'DELETE';
+        if (data.success) {
+            showAlert(data.message || 'Data pelanggan berhasil dihapus!', 'success');
+            // Remove row from table instead of full reload for better UX
+            const row = document.getElementById('row-' + id);
+            if (row) {
+                row.remove();
+                updateRowNumbers();
+                updateTotalCount();
+            }
+        } else {
+            throw new Error(data.message || 'Gagal menghapus data');
+        }
+        resetDeleteButton(deleteBtn, originalText);
+        currentDeleteId = null;
+    })
+    .catch(error => {
+        console.error('Error deleting customer:', error);
+        showAlert(`Gagal menghapus data pelanggan: ${error.message}`, 'error');
+        resetDeleteButton(deleteBtn, originalText);
+    });
+}
+
+function resetDeleteButton(btn, originalText) {
+    btn.innerHTML = originalText;
+    btn.disabled = false;
+}
+
+function updateRowNumbers() {
+    const rows = document.querySelectorAll('tbody tr');
+    rows.forEach((row, index) => {
+        const firstCell = row.querySelector('td');
+        if (firstCell) {
+            const currentPage = {{ $pelanggans->currentPage() ?? 1 }};
+            const perPage = {{ $pelanggans->perPage() ?? 10 }};
+            const newNumber = ((currentPage - 1) * perPage) + index + 1;
+            firstCell.textContent = newNumber;
+        }
+    });
+}
+
+function updateTotalCount() {
+    const remainingRows = document.querySelectorAll('tbody tr').length;
+    const totalBadge = document.querySelector('.badge.bg-primary');
+    if (totalBadge) {
+        const currentTotal = parseInt(totalBadge.textContent) - 1;
+        totalBadge.textContent = currentTotal;
+    }
+    
+    // Update header total
+    const headerTotal = document.querySelector('.text-end h5');
+    if (headerTotal) {
+        const currentHeaderTotal = parseInt(headerTotal.textContent) - 1;
+        headerTotal.textContent = currentHeaderTotal;
+    }
+    
+    // If no more rows, show empty state
+    if (remainingRows === 0) {
+        setTimeout(() => {
+            window.location.reload();
+        }, 1000);
+    }
+}
+
+function showAlert(message, type = 'success') {
+    // Remove existing alerts
+    const existingAlerts = document.querySelectorAll('.alert');
+    existingAlerts.forEach(alert => alert.remove());
+    
+    // Create new alert
+    const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+    const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+    
+    const alertHtml = `
+        <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+            <i class="fas ${icon} me-2"></i>${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+    
+    // Insert after header section
+    const headerSection = document.querySelector('.container-fluid .row.mb-4');
+    if (headerSection) {
+        headerSection.insertAdjacentHTML('afterend', alertHtml);
         
-        form.appendChild(csrfToken);
-        form.appendChild(methodField);
-        document.body.appendChild(form);
-        form.submit();
+        // Auto dismiss after 5 seconds
+        setTimeout(() => {
+            const alert = document.querySelector(`.alert.${alertClass}`);
+            if (alert) {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            }
+        }, 5000);
+        
+        // Scroll to alert
+        const alert = document.querySelector(`.alert.${alertClass}`);
+        if (alert) {
+            alert.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
     }
 }
 
 function viewLocation(lat, lng, nama) {
-    // Open Google Maps in new tab
-    const url = `https://www.google.com/maps?q=${lat},${lng}`;
-    window.open(url, '_blank');
+    if (!lat || !lng) {
+        showAlert('Koordinat tidak tersedia untuk pelanggan ini', 'error');
+        return;
+    }
+    
+    // Buka Google Maps di tab baru
+    const url = `https://www.google.com/maps?q=${lat},${lng}&z=15&t=m&hl=id`;
+    const mapWindow = window.open(url, '_blank');
+    
+    // Cek jika popup diblokir browser
+    if (!mapWindow || mapWindow.closed || typeof mapWindow.closed == 'undefined') {
+        const coordText = `${lat}, ${lng}`;
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(coordText).then(() => {
+                showAlert(`Popup diblokir! Koordinat ${coordText} telah disalin ke clipboard. Paste di Google Maps secara manual.`, 'error');
+            }).catch(() => {
+                showAlert(`Popup diblokir! Koordinat: ${coordText}. Salin manual ke Google Maps.`, 'error');
+            });
+        } else {
+            showAlert(`Popup diblokir! Koordinat: ${coordText}. Salin manual ke Google Maps.`, 'error');
+        }
+    }
 }
 
 function showAllData() {
@@ -438,40 +624,5 @@ function showAllData() {
     
     form.submit();
 }
-
-// Auto focus search input
-document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('filter_query');
-    if (searchInput && !searchInput.value) {
-        searchInput.focus();
-    }
-});
 </script>
-@endpush
-
-@push('styles')
-<style>
-.avatar-sm {
-    width: 2rem;
-    height: 2rem;
-    font-size: 0.8rem;
-}
-
-.table-hover tbody tr:hover {
-    background-color: rgba(0, 123, 255, 0.05);
-}
-
-.btn-group-sm > .btn {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.75rem;
-}
-
-.card {
-    transition: all 0.3s ease;
-}
-
-.badge {
-    font-size: 0.75em;
-}
-</style>
 @endpush

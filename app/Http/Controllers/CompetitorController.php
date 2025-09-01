@@ -45,7 +45,7 @@ class CompetitorController extends Controller
                 'paket'           => $request->paket[$key] ?? null,
                 'kecepatan'       => $request->kecepatan[$key] ?? null,
                 'kuota'           => $request->kuota[$key] ?? null,
-                'harga'           => $request->harga[$key],
+                'harga'           => $request->harga[$key] ?? 0,
                 'fitur_tambahan'  => $request->fitur_tambahan[$key] ?? null,
                 'keterangan'      => $request->keterangan[$key] ?? null,
             ]);

@@ -66,7 +66,8 @@ class OperationalReportController extends Controller
 
         $pelanggans = Pelanggan::orderBy('created_at', 'desc')->get();
         $regionData = $this->getRegionData();
-        return view('report.operational.index', compact('pelanggans', 'regionData'));
+        $pakets = Competitor::select('paket')->distinct()->pluck('paket');
+        return view('report.operational.index', compact('pelanggans', 'regionData', 'pakets'));
     }
 
     // API untuk mendapatkan kabupaten berdasarkan provinsi - DENGAN DEBUGGING
@@ -214,19 +215,18 @@ class OperationalReportController extends Controller
     }
 
     // Method untuk mendapatkan kecepatan berdasarkan cluster via AJAX
-    public function getKecepatanByCluster(Request $request)
+    public function getKecepatanByBandwidth(Request $request)
     {
-        $cluster = $request->get('cluster');
+        $kecepatan = $request->get('kecepatan');
 
-        $kecepatan = Competitor::where('cluster', $cluster)
-                              ->select('kecepatan')
-                              ->distinct()
-                              ->whereNotNull('kecepatan')
-                              ->pluck('kecepatan');
+        $paket = Competitor::where('kecepatan', $kecepatan)
+                        ->select('speed')
+                        ->distinct()
+                        ->pluck('speed');
 
-        return response()->json($kecepatan);
-
+        return response()->json($paket);
     }
+
 
     public function store(Request $request)
     {
@@ -243,6 +243,9 @@ class OperationalReportController extends Controller
             'cluster'        => 'required|string|max:100',
             'kode_fat'       => 'nullable|string|max:100',
         ]);
+
+        // Otomatis isi kecepatan sama dengan bandwidth pelanggan
+        $validated['kecepatan'] = [$validated['bandwidth']];
 
         // Generate kode FAT otomatis jika kosong
         if (empty($validated['kode_fat'])) {

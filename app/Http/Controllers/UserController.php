@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
@@ -37,7 +38,18 @@ class UserController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
             'role' => 'required|in:admin,user',
+            'photo'    => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
+
+         // ✅ Tambahkan default null agar tidak error
+        $profilePicturePath = null;
+        // ✅ Jika ada upload foto, simpan
+        if ($request->hasFile('photo')) {
+            $fileName = time() . '.' . $request->photo->extension();
+            $request->photo->storeAs('photo', $fileName, 'public');
+            $photo = $fileName;  // <- disimpan ke $photo
+        }
+
 
         if ($validator->fails()) {
             return redirect()->back()
@@ -83,19 +95,31 @@ class UserController extends Controller
 public function update(Request $request, $id)
 {
     $user = User::findOrFail($id);
-    
+
     // Buat aturan validasi yang dinamis
     $rules = [
         'name' => 'required|string|max:255',
         'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
         'role' => 'required|in:admin,user',
+        'photo'    => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
     ];
-    
+
+    // ✅ Jika ada foto baru, hapus lama lalu simpan baru
+        if ($request->hasFile('photo')) {
+            if ($user->photo && Storage::disk('public')->exists('photo/' . $user->photo)) {
+                Storage::disk('public')->delete('photo/' . $user->photo);
+            }
+
+            $fileName = time() . '.' . $request->photo->extension();
+            $request->photo->storeAs('photo', $fileName, 'public');
+            $user->photo = $fileName;
+        }
+
     // Tambahkan validasi password hanya jika field diisi
     if ($request->filled('password')) {
         $rules['password'] = 'string|min:8|confirmed';
     }
-    
+
     $validator = Validator::make($request->all(), $rules);
 
     if ($validator->fails()) {
@@ -109,8 +133,9 @@ public function update(Request $request, $id)
         'name' => $request->name,
         'email' => $request->email,
         'role' => $request->role,
+        'photo' => $user->photo, // Simpan nama file foto yang sudah diupdate
     ];
-    
+
     // Tambahkan password ke data update hanya jika diisi
     if ($request->filled('password')) {
         $updateData['password'] = Hash::make($request->password);
@@ -127,7 +152,7 @@ public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
         $user->delete();
-        
+
         return redirect()->route('users.index')
             ->with('success', 'User berhasil dihapus!');
     }

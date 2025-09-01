@@ -14,14 +14,14 @@
                                 <i class="ni ni-single-02 mr-2"></i>Daftar User
                             </h6>
                         </div>
-                        <div class="col text-right">
+                        {{-- <div class="col text-right">
                             <a href="{{ route('users.create') }}" class="btn btn-sm btn-success">
                                 <i class="fas fa-plus mr-1"></i>Tambah User
                             </a>
-                        </div>
+                        </div> --}}
                     </div>
                 </div>
-                
+
                 <div class="card-body">
                     @if(session('success'))
                         <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -81,7 +81,7 @@
                                                 <form action="{{ route('users.destroy', $user->id) }}" method="POST" class="d-inline">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="dropdown-item text-danger" 
+                                                    <button type="submit" class="dropdown-item text-danger"
                                                             onclick="return confirm('Apakah Anda yakin ingin menghapus user {{ $user->name }}?')">
                                                         <i class="fas fa-trash mr-2"></i>Hapus
                                                     </button>

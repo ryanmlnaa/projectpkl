@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\CustomerSearchController;
 use App\Http\Controllers\ExportController;
+use App\Http\Controllers\ExportCompetitorController;
+use App\Http\Controllers\ExportActivityController;
 
 // ================== ROOT REDIRECT ================== //
 Route::get('/', function () {
@@ -179,11 +181,13 @@ Route::prefix('export')->group(function () {
     Route::get('/activity', [ExportController::class, 'activityView'])->name('export.activity');
     Route::get('/activity/pdf', [ExportController::class, 'exportActivityPdf'])->name('export.activity.pdf');
     Route::get('/activity/csv', [ExportController::class, 'exportActivityCsv'])->name('export.activity.csv');
+    Route::get('/export/activity/excel', [ExportActivityController::class, 'exportExcel'])->name('export.activity.excel');
 
-    // Competitor
-    Route::get('/competitor', [ExportController::class, 'competitorView'])->name('export.competitor');
-    Route::get('/competitor/pdf', [ExportController::class, 'exportCompetitorPdf'])->name('export.competitor.pdf');
-    Route::get('/competitor/csv', [ExportController::class, 'exportCompetitorCsv'])->name('export.competitor.csv');
+    //Competitor
+    Route::get('/export/competitor', [ExportCompetitorController::class, 'index'])->name('export.competitor');
+    Route::get('/export/competitor/pdf', [ExportCompetitorController::class, 'exportPdf'])->name('export.competitor.pdf');
+    Route::get('/export/competitor/csv', [ExportCompetitorController::class, 'exportCsv'])->name('export.competitor.csv');
+    Route::get('/export/competitor/excel', [ExportCompetitorController::class, 'exportExcel'])->name('export.competitor.excel');
 
     // Operational
     Route::get('/operational', [ExportController::class, 'operationalView'])->name('export.operational');

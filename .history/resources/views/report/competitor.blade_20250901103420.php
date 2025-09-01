@@ -125,72 +125,68 @@
           </button>
         </div>
 
-        <!-- <div class="mt-4" id="saveBtn" style="display: none;">
+        <div class="mt-4" id="saveBtn" style="display: none;">
           <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Simpan Data</button>
         </div>
-      </form> -->
-       <div class="d-flex justify-content-start mt-3 col-md-10 mx-2">
-          <button type="submit" class="btn btn-success px-4 py-2">
-            <i class="bi bi-save me-2"></i> Simpan Data
-          </button>
-        </div>
       </form>
+
       <!-- TABEL HASIL -->
+      <hr>
+      <h5 class="mb-3">Data Competitor</h5>
+      <div class="table-responsive">
+        <table class="table table-striped table-hover">
+          <thead class="table-dark">
+            <tr>
+                <th>No</th>
+                <th>Cluster</th>
+                <th>Nama Competitor</th>
+                <th>Paket</th>
+                <th>Kecepatan</th>
+                <th>Kuota</th>
+                <th>Harga</th>
+                <th>Fitur Tambahan</th>
+                <th>Keterangan</th>
+                <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{-- 🔹 Looping data competitor --}}
+            @forelse($competitors as $index => $item)
+            <tr>
+                 <td>{{ $index + 1 }}</td>
+                <td><span class="badge bg-info">{{ $item->cluster }}</span></td>
+                <td>{{ $item->competitor_name }}</td>
+                <td>{{ $item->paket ?? '-' }}</td>
+                <td>{{ $item->kecepatan ?? '-' }}</td>
+                <td>{{ $item->kuota ?? '-' }}</td>
+                <td><strong>Rp {{ number_format($item->harga, 0, ',', '.') }}</strong></td>
+                <td>{{ $item->fitur_tambahan ?? '-' }}</td>
+                <td>{{ $item->keterangan ?? '-' }}</td>
+                <td>
+                    {{-- 🔹 Edit --}}
+                    <a href="{{ route('competitor.edit', $item->id) }}" class="btn btn-sm btn-primary">
+                    <i class="fas fa-edit"></i>
+                    </a>
 
-          <div class="card mt-4 shadow-sm">
-  <div class="card-body">
-    <h5 class="card-title mb-3">Data Competitor</h5>
-    <div class="table-responsive">
-      <table class="table table-bordered text-center align-middle">
-        <thead class="table-dark">
-          <tr>
-            <th>No</th>
-            <th>Cluster</th>
-            <th>Nama Competitor</th>
-            <th>Paket</th>
-            <th>Kecepatan</th>
-            <th>Kuota</th>
-            <th>Harga</th>
-            <th>Fitur Tambahan</th>
-            <th>Keterangan</th>
-            <th>Aksi</th>
-          </tr>
-        </thead>
-        <tbody>
-          @forelse($competitors as $index => $item)
-          <tr>
-            <td>{{ $index + 1 }}</td>
-            <td><span class="badge bg-info">{{ $item->cluster }}</span></td>
-            <td>{{ $item->competitor_name }}</td>
-            <td>{{ $item->paket ?? '-' }}</td>
-            <td>{{ $item->kecepatan ?? '-' }}</td>
-            <td>{{ $item->kuota ?? '-' }}</td>
-            <td><strong>Rp {{ number_format($item->harga, 0, ',', '.') }}</strong></td>
-            <td>{{ $item->fitur_tambahan ?? '-' }}</td>
-            <td>{{ $item->keterangan ?? '-' }}</td>
-            <td>
-              {{-- Edit --}}
-              <a href="{{ route('competitor.edit', $item->id) }}" class="btn btn-sm btn-primary">
-                <i class="fas fa-edit"></i>
-              </a>
+                    {{-- 🔹 Delete --}}
+                    <form action="{{ route('competitor.destroy', $item->id) }}" method="POST" class="d-inline">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Yakin hapus data?')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                    </form>
+                </td>
+            </tr>
+            @empty
+            <tr>
+              <td colspan="5" class="text-center">Belum ada data competitor</td>
+            </tr>
+            @endforelse
+          </tbody>
+        </table>
+      </div>
 
-              {{-- Delete --}}
-              <form action="{{ route('competitor.destroy', $item->id) }}" method="POST" class="d-inline">
-                @csrf
-                @method('DELETE')
-                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Yakin hapus data?')">
-                  <i class="fas fa-trash"></i>
-                </button>
-              </form>
-            </td>
-          </tr>
-          @empty
-          <tr>
-            <td colspan="10">Belum ada data competitor</td>
-          </tr>
-          @endforelse
-        </tbody>
-      </table>
     </div>
   </div>
 </div>
@@ -302,35 +298,4 @@ document.getElementById("addMoreBtn").addEventListener("click", function() {
   });
 });
 </script>
-
-<style>
-  /* Style dropdown modern */
-  select.form-select {
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    background: #fff url("data:image/svg+xml;utf8,<svg fill='gray' height='20' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>") no-repeat right 12px center;
-    background-size: 16px;
-    border: 1px solid #ced4da;
-    border-radius: 10px;
-    padding: 10px 40px 10px 15px;
-    font-size: 14px;
-    color: #333;
-    width: 100%;
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
-  }
-
-  select.form-select:hover {
-    border-color: #5e72e4;
-    box-shadow: 0 0 6px rgba(94, 114, 228, 0.3);
-  }
-
-  select.form-select:focus {
-    outline: none;
-    border-color: #324cdd;
-    box-shadow: 0 0 6px rgba(50, 76, 221, 0.5);
-  }
-</style>
-
 @endsection

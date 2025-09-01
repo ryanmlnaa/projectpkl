@@ -722,4 +722,24 @@ $(document).ready(function() {
     });
 });
 </script>
+$('#paketSelect').on('change', function() {
+    var paket = $(this).val();
+
+    if (paket) {
+        $.ajax({
+            url: '/get-kecepatan',
+            type: 'GET',
+            data: { paket: paket },
+            success: function(data) {
+                $('#kecepatanSelect').empty().append('<option value="">-- Pilih Kecepatan --</option>');
+                $.each(data, function(index, value) {
+                    $('#kecepatanSelect').append('<option value="'+ value +'">'+ value +'</option>');
+                });
+            }
+        });
+    } else {
+        $('#kecepatanSelect').empty().append('<option value="">-- Pilih Kecepatan --</option>');
+    }
+});
+
 @endsection

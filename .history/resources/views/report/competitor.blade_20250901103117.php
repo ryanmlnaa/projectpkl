@@ -125,6 +125,70 @@
           </button>
         </div>
 
+<<<<<<< Updated upstream
+        <div class="mt-4" id="saveBtn" style="display: none;">
+          <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Simpan Data</button>
+        </div>
+      </form>
+
+      <!-- TABEL HASIL -->
+      <hr>
+      <h5 class="mb-3">Data Competitor</h5>
+      <div class="table-responsive">
+        <table class="table table-striped table-hover">
+          <thead class="table-dark">
+            <tr>
+                <th>No</th>
+                <th>Cluster</th>
+                <th>Nama Competitor</th>
+                <th>Paket</th>
+                <th>Kecepatan</th>
+                <th>Kuota</th>
+                <th>Harga</th>
+                <th>Fitur Tambahan</th>
+                <th>Keterangan</th>
+                <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{-- 🔹 Looping data competitor --}}
+            @forelse($competitors as $index => $item)
+            <tr>
+                 <td>{{ $index + 1 }}</td>
+                <td><span class="badge bg-info">{{ $item->cluster }}</span></td>
+                <td>{{ $item->competitor_name }}</td>
+                <td>{{ $item->paket ?? '-' }}</td>
+                <td>{{ $item->kecepatan ?? '-' }}</td>
+                <td>{{ $item->kuota ?? '-' }}</td>
+                <td><strong>Rp {{ number_format($item->harga, 0, ',', '.') }}</strong></td>
+                <td>{{ $item->fitur_tambahan ?? '-' }}</td>
+                <td>{{ $item->keterangan ?? '-' }}</td>
+                <td>
+                    {{-- 🔹 Edit --}}
+                    <a href="{{ route('competitor.edit', $item->id) }}" class="btn btn-sm btn-primary">
+                    <i class="fas fa-edit"></i>
+                    </a>
+
+                    {{-- 🔹 Delete --}}
+                    <form action="{{ route('competitor.destroy', $item->id) }}" method="POST" class="d-inline">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Yakin hapus data?')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                    </form>
+                </td>
+            </tr>
+            @empty
+            <tr>
+              <td colspan="5" class="text-center">Belum ada data competitor</td>
+            </tr>
+            @endforelse
+          </tbody>
+        </table>
+      </div>
+
+=======
         <!-- <div class="mt-4" id="saveBtn" style="display: none;">
           <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Simpan Data</button>
         </div>
@@ -191,6 +255,7 @@
           @endforelse
         </tbody>
       </table>
+>>>>>>> Stashed changes
     </div>
   </div>
 </div>
@@ -302,6 +367,9 @@ document.getElementById("addMoreBtn").addEventListener("click", function() {
   });
 });
 </script>
+<<<<<<< Updated upstream
+@endsection
+=======
 
 <style>
   /* Style dropdown modern */
@@ -334,3 +402,4 @@ document.getElementById("addMoreBtn").addEventListener("click", function() {
 </style>
 
 @endsection
+>>>>>>> Stashed changes

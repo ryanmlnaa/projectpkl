@@ -12,7 +12,6 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\CustomerSearchController;
-use App\Http\Controllers\ExportController;
 
 // ================== ROOT REDIRECT ================== //
 Route::get('/', function () {
@@ -152,61 +151,22 @@ Route::middleware(['auth'])->prefix('customer')->name('customer.')->group(functi
         Route::get('/debug-storage', [ReportActivityController::class, 'debugStorage']);
         Route::get('/fix-storage', [ReportActivityController::class, 'fixStorage']);
     });
+// Existing routes
+Route::get('/report/operational', [OperationalReportController::class, 'index'])->name('report.operational.index');
+Route::post('/report/operational', [OperationalReportController::class, 'store'])->name('report.operational.store');
+Route::put('/report/operational/{pelanggan}', [OperationalReportController::class, 'update'])->name('report.operational.update');
+Route::delete('/report/operational/{pelanggan}', [OperationalReportController::class, 'destroy'])->name('report.operational.destroy');
 
- Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
-    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile/photo', [ProfileController::class, 'deletePhoto'])->name('profile.photo.delete');
+// New route for AJAX call
+Route::get('/operational/get-kecepatan', [OperationalReportController::class, 'getKecepatanByCluster'])->name('operational.getKecepatanByCluster');
 
-    // Debug route (hapus setelah selesai debug)
-    Route::get('/test-user', function() {
-        $user = Auth::user();
-        return [
-            'id' => $user->id,
-            'name' => $user->name,
-            'email' => $user->email,
-            'profile_photo_path' => $user->profile_photo_path,
-            'file_exists_storage' => $user->profile_photo_path ? file_exists(storage_path('app/public/' . $user->profile_photo_path)) : false,
-            'storage_url' => $user->profile_photo_path ? Storage::url($user->profile_photo_path) : null,
-        ];
-    });
-    Route::get('/profile/change-password', [ProfileController::class, 'changePassword'])
-    ->name('profile.change.password');
-
-
-
-Route::prefix('export')->group(function () {
-    // Activity
-    Route::get('/activity', [ExportController::class, 'activityView'])->name('export.activity');
-    Route::get('/activity/pdf', [ExportController::class, 'exportActivityPdf'])->name('export.activity.pdf');
-    Route::get('/activity/csv', [ExportController::class, 'exportActivityCsv'])->name('export.activity.csv');
-
-    // Competitor
-    Route::get('/competitor', [ExportController::class, 'competitorView'])->name('export.competitor');
-    Route::get('/competitor/pdf', [ExportController::class, 'exportCompetitorPdf'])->name('export.competitor.pdf');
-    Route::get('/competitor/csv', [ExportController::class, 'exportCompetitorCsv'])->name('export.competitor.csv');
-
-    // Operational
-    Route::get('/operational', [ExportController::class, 'operationalView'])->name('export.operational');
-    Route::get('/operational/pdf', [ExportController::class, 'exportOperationalPdf'])->name('export.operational.pdf');
-    Route::get('/operational/csv', [ExportController::class, 'exportOperationalCsv'])->name('export.operational.csv');
-});
-
-
+// Competitor routes
+Route::get('/competitor', [CompetitorController::class, 'index'])->name('competitor.index');
+Route::post('/competitor', [CompetitorController::class, 'store'])->name('competitor.store');
+Route::get('/competitor/{id}/edit', [CompetitorController::class, 'edit'])->name('competitor.edit');
+Route::put('/competitor/{id}', [CompetitorController::class, 'update'])->name('competitor.update');
+Route::delete('/competitor/{id}', [CompetitorController::class, 'destroy'])->name('competitor.destroy');
 // ================== FALLBACK ROUTE ================== //
 Route::fallback(function () {
     return redirect()->route('login');
 });
-
-Route::prefix('customer')->group(function () {
-    Route::get('/search', [CustomerSearchController::class, 'index'])->name('customer.search');
-    Route::get('/search/advanced', [CustomerSearchController::class, 'advancedSearch'])->name('customer.search.advanced');
-    Route::get('/search/{id}/edit', [CustomerSearchController::class, 'edit'])->name('customer.edit');
-    Route::put('/search/{id}', [CustomerSearchController::class, 'update'])->name('customer.update');
-    Route::delete('/search/{id}', [CustomerSearchController::class, 'destroy'])->name('customer.delete');
-    Route::get('/map', [CustomerSearchController::class, 'showMap'])->name('customer.map');
-});
-
-Route::get('/get-kabupaten', [App\Http\Controllers\OperationalReportController::class, 'getKabupaten']);
-Route::get('/get-kode-fat', [App\Http\Controllers\OperationalReportController::class, 'getKodeFat']);
-
-

@@ -115,11 +115,9 @@
                                     <label class="form-label fw-semibold">Cluster</label>
                                     <select class="form-select" name="cluster_filter">
                                         <option value="">Semua Cluster</option>
-                                        @if(isset($pelanggans) && $pelanggans->count() > 0)
+                                        @if(isset($pelanggans))
                                             @foreach($pelanggans->pluck('cluster')->unique()->sort() as $cluster)
-                                                @if($cluster)
-                                                    <option value="{{ $cluster }}">{{ $cluster }}</option>
-                                                @endif
+                                                <option value="{{ $cluster }}">{{ $cluster }}</option>
                                             @endforeach
                                         @endif
                                     </select>
@@ -128,11 +126,9 @@
                                     <label class="form-label fw-semibold">Provinsi</label>
                                     <select class="form-select" name="provinsi_filter">
                                         <option value="">Semua Provinsi</option>
-                                        @if(isset($pelanggans) && $pelanggans->count() > 0)
+                                        @if(isset($pelanggans))
                                             @foreach($pelanggans->pluck('provinsi')->unique()->sort() as $provinsi)
-                                                @if($provinsi)
-                                                    <option value="{{ $provinsi }}">{{ $provinsi }}</option>
-                                                @endif
+                                                <option value="{{ $provinsi }}">{{ $provinsi }}</option>
                                             @endforeach
                                         @endif
                                     </select>
@@ -141,11 +137,9 @@
                                     <label class="form-label fw-semibold">Kabupaten</label>
                                     <select class="form-select" name="kabupaten_filter">
                                         <option value="">Semua Kabupaten</option>
-                                        @if(isset($pelanggans) && $pelanggans->count() > 0)
+                                        @if(isset($pelanggans))
                                             @foreach($pelanggans->pluck('kabupaten')->unique()->sort() as $kabupaten)
-                                                @if($kabupaten)
-                                                    <option value="{{ $kabupaten }}">{{ $kabupaten }}</option>
-                                                @endif
+                                                <option value="{{ $kabupaten }}">{{ $kabupaten }}</option>
                                             @endforeach
                                         @endif
                                     </select>
@@ -219,7 +213,7 @@
                             </a>
                         </div>
                         <small class="text-muted">
-                            Menampilkan {{ $pelanggans->firstItem() ?? 0 }}-{{ $pelanggans->lastItem() ?? 0 }} dari {{ $pelanggans->total() ?? 0 }} data
+                            Menampilkan {{ $pelanggans->firstItem() }}-{{ $pelanggans->lastItem() }} dari {{ $pelanggans->total() }} data
                         </small>
                     </div>
                 </div>
@@ -469,8 +463,8 @@ function performDelete(id) {
         return;
     }
 
-    // PERBAIKAN: URL yang benar sesuai dengan route Laravel
-    const deleteUrl = `/customer/search/${id}`;
+    // PERBAIKAN: Gunakan URL yang sesuai dengan route yang ada di controller
+    const deleteUrl = /customer/search/${id};
 
     // Kirim request delete via fetch
     fetch(deleteUrl, {
@@ -486,7 +480,7 @@ function performDelete(id) {
         console.log('Response status:', response.status);
 
         if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            throw new Error(HTTP ${response.status}: ${response.statusText});
         }
         return response.json();
     })
@@ -510,7 +504,7 @@ function performDelete(id) {
     })
     .catch(error => {
         console.error('Error deleting customer:', error);
-        showAlert(`Gagal menghapus data pelanggan: ${error.message}`, 'error');
+        showAlert(Gagal menghapus data pelanggan: ${error.message}, 'error');
         resetDeleteButton(deleteBtn, originalText);
     });
 }
@@ -525,13 +519,8 @@ function updateRowNumbers() {
     rows.forEach((row, index) => {
         const firstCell = row.querySelector('td');
         if (firstCell) {
-            @if(isset($pelanggans))
             const currentPage = {{ $pelanggans->currentPage() ?? 1 }};
-            const perPage = {{ $pelanggans->perPage() ?? 15 }};
-            @else
-            const currentPage = 1;
-            const perPage = 15;
-            @endif
+            const perPage = {{ $pelanggans->perPage() ?? 10 }};
             const newNumber = ((currentPage - 1) * perPage) + index + 1;
             firstCell.textContent = newNumber;
         }
@@ -584,7 +573,7 @@ function showAlert(message, type = 'success') {
 
         // Auto dismiss after 5 seconds
         setTimeout(() => {
-            const alert = document.querySelector(`.alert.${alertClass}`);
+            const alert = document.querySelector(.alert.${alertClass});
             if (alert) {
                 const bsAlert = new bootstrap.Alert(alert);
                 bsAlert.close();
@@ -592,7 +581,7 @@ function showAlert(message, type = 'success') {
         }, 5000);
 
         // Scroll to alert
-        const alert = document.querySelector(`.alert.${alertClass}`);
+        const alert = document.querySelector(.alert.${alertClass});
         if (alert) {
             alert.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
@@ -606,20 +595,20 @@ function viewLocation(lat, lng, nama) {
     }
 
     // Buka Google Maps di tab baru
-    const url = `https://www.google.com/maps?q=${lat},${lng}&z=15&t=m&hl=id`;
+    const url = https://www.google.com/maps?q=${lat},${lng}&z=15&t=m&hl=id;
     const mapWindow = window.open(url, '_blank');
 
     // Cek jika popup diblokir browser
     if (!mapWindow || mapWindow.closed || typeof mapWindow.closed == 'undefined') {
-        const coordText = `${lat}, ${lng}`;
+        const coordText = ${lat}, ${lng};
         if (navigator.clipboard) {
             navigator.clipboard.writeText(coordText).then(() => {
-                showAlert(`Popup diblokir! Koordinat ${coordText} telah disalin ke clipboard. Paste di Google Maps secara manual.`, 'error');
+                showAlert(Popup diblokir! Koordinat ${coordText} telah disalin ke clipboard. Paste di Google Maps secara manual., 'error');
             }).catch(() => {
-                showAlert(`Popup diblokir! Koordinat: ${coordText}. Salin manual ke Google Maps.`, 'error');
+                showAlert(Popup diblokir! Koordinat: ${coordText}. Salin manual ke Google Maps., 'error');
             });
         } else {
-            showAlert(`Popup diblokir! Koordinat: ${coordText}. Salin manual ke Google Maps.`, 'error');
+            showAlert(Popup diblokir! Koordinat: ${coordText}. Salin manual ke Google Maps., 'error');
         }
     }
 }

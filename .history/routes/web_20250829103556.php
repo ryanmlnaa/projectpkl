@@ -12,7 +12,6 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\CustomerSearchController;
-use App\Http\Controllers\ExportController;
 
 // ================== ROOT REDIRECT ================== //
 Route::get('/', function () {
@@ -174,24 +173,6 @@ Route::middleware(['auth'])->prefix('customer')->name('customer.')->group(functi
 
 
 
-Route::prefix('export')->group(function () {
-    // Activity
-    Route::get('/activity', [ExportController::class, 'activityView'])->name('export.activity');
-    Route::get('/activity/pdf', [ExportController::class, 'exportActivityPdf'])->name('export.activity.pdf');
-    Route::get('/activity/csv', [ExportController::class, 'exportActivityCsv'])->name('export.activity.csv');
-
-    // Competitor
-    Route::get('/competitor', [ExportController::class, 'competitorView'])->name('export.competitor');
-    Route::get('/competitor/pdf', [ExportController::class, 'exportCompetitorPdf'])->name('export.competitor.pdf');
-    Route::get('/competitor/csv', [ExportController::class, 'exportCompetitorCsv'])->name('export.competitor.csv');
-
-    // Operational
-    Route::get('/operational', [ExportController::class, 'operationalView'])->name('export.operational');
-    Route::get('/operational/pdf', [ExportController::class, 'exportOperationalPdf'])->name('export.operational.pdf');
-    Route::get('/operational/csv', [ExportController::class, 'exportOperationalCsv'])->name('export.operational.csv');
-});
-
-
 // ================== FALLBACK ROUTE ================== //
 Route::fallback(function () {
     return redirect()->route('login');
@@ -207,6 +188,4 @@ Route::prefix('customer')->group(function () {
 });
 
 Route::get('/get-kabupaten', [App\Http\Controllers\OperationalReportController::class, 'getKabupaten']);
-Route::get('/get-kode-fat', [App\Http\Controllers\OperationalReportController::class, 'getKodeFat']);
-
 

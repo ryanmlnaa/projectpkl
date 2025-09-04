@@ -230,8 +230,7 @@ class OperationalReportController extends Controller
 
     public function store(Request $request)
     {
-        
-        $validated = $request->validate([
+        idated = $request->validate([
             'id_pelanggan'   => 'required|string|max:100|unique:pelanggans,id_pelanggan',
             'nama_pelanggan' => 'required|string|max:255',
             'bandwidth'      => 'required|string|max:100',

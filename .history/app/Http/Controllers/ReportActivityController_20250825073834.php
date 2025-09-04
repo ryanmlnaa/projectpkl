@@ -21,7 +21,7 @@ class ReportActivityController extends Controller
 
     public function index()
     {
-        $reports = ReportActivity::latest()->get(); 
+        $reports = ReportActivity::latest()->get();
 
         $competitors = collect(['A','B','C','D','E','F','G','H','I','J'])
             ->map(fn($cluster) => (object)['cluster' => $cluster]);

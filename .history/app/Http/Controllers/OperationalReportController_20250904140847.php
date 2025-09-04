@@ -230,7 +230,7 @@ class OperationalReportController extends Controller
 
     public function store(Request $request)
     {
-        
+        dd($);
         $validated = $request->validate([
             'id_pelanggan'   => 'required|string|max:100|unique:pelanggans,id_pelanggan',
             'nama_pelanggan' => 'required|string|max:255',

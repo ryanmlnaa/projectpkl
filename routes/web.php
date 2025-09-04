@@ -51,7 +51,7 @@ Route::middleware('auth')->group(function () {
         return view('dashboard');
 
         // route user
-    })->middleware('role:user')->name('user.dashboard');
+        })->middleware('role:user')->name('user.dashboard');
         Route::get('/users', [UserController::class, 'index'])->name('users.index');
         Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
         Route::post('/users', [UserController::class, 'store'])->name('users.store');
@@ -60,8 +60,8 @@ Route::middleware('auth')->group(function () {
         Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update');
         Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
 
-    // ================== REPORT ACTIVITY ROUTES ================== //
-    Route::prefix('reports')->name('reports.')->group(function () {
+        // ================== REPORT ACTIVITY ROUTES ================== //
+        Route::prefix('reports')->name('reports.')->group(function () {
 
         // Report Activity CRUD
         Route::get('/activity', [ReportActivityController::class, 'index'])->name('activity');
@@ -77,12 +77,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/activity/print', [ReportActivityController::class, 'printView'])->name('print');
 
         // Contoh route yang benar
-Route::get('/report-activity/export-pdf', [ReportActivityController::class, 'exportPdf'])->name('report.activity.pdf');
+        Route::get('/report-activity/export-pdf', [ReportActivityController::class, 'exportPdf'])->name('report.activity.pdf');
 
-// Atau jika menggunakan resource route:
-Route::resource('report-activity', ReportActivityController::class);
-// Tambahkan route khusus untuk export
-Route::get('/report-activity/export-pdf', [ReportActivityController::class, 'exportPdf']);
+        // Atau jika menggunakan resource route:
+        Route::resource('report-activity', ReportActivityController::class);
+        // Tambahkan route khusus untuk export
+        Route::get('/report-activity/export-pdf', [ReportActivityController::class, 'exportPdf']);
 
         // Report Competitor (view saja) - menggunakan ReportController
         Route::get('/competitor', [ReportController::class, 'competitor'])->name('competitor');
@@ -97,9 +97,9 @@ Route::get('/report-activity/export-pdf', [ReportActivityController::class, 'exp
 
     // ================== COMPETITOR ROUTES ================== //
     Route::resource('competitor', CompetitorController::class);
-// ================== OPERATIONAL REPORT ROUTES ================== //
-// Route untuk Input Data Pelanggan
-Route::prefix('report/operational')->name('report.operational.')->group(function () {
+    // ================== OPERATIONAL REPORT ROUTES ================== //
+    // Route untuk Input Data Pelanggan
+    Route::prefix('report/operational')->name('report.operational.')->group(function () {
     Route::get('/', [OperationalReportController::class, 'index'])->name('index');
     Route::post('/', [OperationalReportController::class, 'store'])->name('store');
     Route::get('/show', [OperationalReportController::class, 'show'])->name('show');
@@ -109,18 +109,18 @@ Route::prefix('report/operational')->name('report.operational.')->group(function
     // ========== MISSING API ENDPOINTS - ADD THESE ========== //
     Route::get('/get-kabupaten', [OperationalReportController::class, 'getKabupaten'])->name('get-kabupaten');
     Route::get('/get-kode-fat', [OperationalReportController::class, 'getKodeFat'])->name('get-kode-fat');
-});
+    });
     // Route::get('/customer/search', function() {
     //     return view('customer.search');
     // })->name('customer.search');
 
-// Perbaiki route pertama (typo: repot -> report)
-Route::get('/report/customer/search', function() {
-    return view('report.customer.search'); // Buat view ini jika belum ada
-})->name('report.customer.search');
+    // Perbaiki route pertama (typo: repot -> report)
+    Route::get('/report/customer/search', function() {
+        return view('report.customer.search'); // Buat view ini jika belum ada
+    })->name('report.customer.search');
 
-// Route untuk Customer dengan middleware auth
-Route::middleware(['auth'])->prefix('customer')->name('customer.')->group(function () {
+    // Route untuk Customer dengan middleware auth
+    Route::middleware(['auth'])->prefix('customer')->name('customer.')->group(function () {
     // Route untuk search customer
     Route::get('/search', [App\Http\Controllers\CustomerSearchController::class, 'index'])->name('search');
 

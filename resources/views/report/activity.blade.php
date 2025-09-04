@@ -1,5 +1,9 @@
 @extends('layouts.app')
 
+@php
+    use Illuminate\Support\Facades\Storage;
+@endphp
+
 @section('content')
 <div class="row">
     {{-- Form Tambah Report --}}
@@ -75,8 +79,8 @@
                         <label>Status</label>
                         <select name="status" class="form-control" required>
                             <option value="">-- Pilih Status --</option>
-                            <option value="selesai" {{ old('status') == 'selesai' ? 'selected' : '' }}>Selesai</option>
-                            <option value="proses" {{ old('status') == 'proses' ? 'selected' : '' }}>Proses</option>
+                            <option value="Selesai" {{ old('status') == 'Selesai' ? 'selected' : '' }}>Selesai</option>
+                            <option value="Proses" {{ old('status') == 'Proses' ? 'selected' : '' }}>Proses</option>
                         </select>
                     </div>
                     <button type="submit" class="btn btn-success w-100">Simpan</button>
@@ -128,16 +132,16 @@
                                                  onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
                                             <span style="display: none; color: #dc3545;">❌ Error</span>
                                         @elseif($report->evidence)
-                                            <span class="text-warning" title="File tidak ditemukan">⚠️ Missing</span>
+                                            <span class="text-warning" title="File tidak ditemukan">⚠ Missing</span>
                                         @else
                                             <span class="text-muted">-</span>
                                         @endif
                                     </td>
                                     <td>{{ Str::limit($report->hasil_kendala ?? '-', 30) }}</td>
                                     <td>
-                                        <span class="badge {{ $report->status == 'selesai' ? 'bg-success' : 'bg-warning' }}">
-                                            {{ ucfirst($report->status) }}
-                                        </span>
+                                        <span class="badge {{ $report->status == 'Selesai' ? 'bg-success' : 'bg-warning' }}">
+                                        {{ $report->status }}
+                                    </span>
                                     </td>
                                     <td>
                                         {{-- Tombol Edit --}}
@@ -219,8 +223,8 @@
                                                     <div class="mb-3">
                                                         <label>Status</label>
                                                         <select name="status" class="form-control" required>
-                                                            <option value="selesai" {{ $report->status == 'selesai' ? 'selected' : '' }}>Selesai</option>
-                                                            <option value="proses" {{ $report->status == 'proses' ? 'selected' : '' }}>Proses</option>
+                                                            <option value="Selesai" {{ $report->status == 'Selesai' ? 'selected' : '' }}>Selesai</option>
+                                                            <option value="Proses" {{ $report->status == 'Proses' ? 'selected' : '' }}>Proses</option>
                                                         </select>
                                                     </div>
                                                 </div>

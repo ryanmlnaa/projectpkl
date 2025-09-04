@@ -39,7 +39,7 @@ class ReportActivityController extends Controller
             'cluster' => 'required|string|in:A,B,C,D,E,F,G,H,I,J',
             'evidence' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
             'hasil_kendala' => 'nullable|string',
-            'status' => 'required|in:selesai,proses'
+            'status' => 'required|in:Selesai,Proses'
         ]);
 
         // Handle file upload dengan error handling yang lebih baik
@@ -87,7 +87,7 @@ class ReportActivityController extends Controller
             'cluster' => 'required|string|in:A,B,C,D,E,F,G,H,I,J',
             'evidence' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
             'hasil_kendala' => 'nullable|string',
-            'status' => 'required|in:selesai,proses'
+            'status' => 'required|in:Selesai,Proses'
         ]);
 
         $report = ReportActivity::findOrFail($id);

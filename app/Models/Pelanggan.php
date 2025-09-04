@@ -10,6 +10,10 @@ class Pelanggan extends Model
     use HasFactory;
 
     protected $table = 'pelanggans';
+    protected $primaryKey = 'id_pelanggan';   // ✅ primary pakai id_pelanggan
+    public $incrementing = false;             // ✅ non auto increment
+    protected $keyType = 'string';            // ✅ tipe primary string
+
 
     // Field yang bisa diisi mass assignment
     protected $fillable = [

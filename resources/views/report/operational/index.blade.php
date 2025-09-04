@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="container-fluid mt-4">
-    <div class="card shadow border-0">
+    <div class="card shadow border-5">
         <div class="card-header bg-primary text-white">
             <h4 class="mb-0"><i class="fas fa-clipboard-list"></i> Input Data Pelanggan</h4>
         </div>
@@ -28,11 +28,16 @@
             {{-- FORM INPUT --}}
             <form action="{{ route('report.operational.store') }}" method="POST" class="mb-4">
                 @csrf
+
                 <div class="row g-3">
                     <div class="col-md-3">
-                        <label class="form-label">ID Pelanggan *</label>
-                        <input type="text" name="id_pelanggan" class="form-control" value="{{ old('id_pelanggan') }}" required>
-                    </div>
+                <label class="form-label">ID Pelanggan</label>
+                <input type="text"
+                    class="form-control bg-light fw-bold text-center"
+                    value="{{ $nextId }}"
+                    readonly>
+        </div>
+
                     <div class="col-md-3">
                         <label class="form-label">Nama Pelanggan *</label>
                         <input type="text" name="nama_pelanggan" class="form-control" value="{{ old('nama_pelanggan') }}" required>
@@ -41,6 +46,9 @@
                         <label class="form-label"><strong>Pilih Bandwidth</strong></label>
                         <select class="form-control select2" id="bandwidthSelect" name="bandwidth" required>
                             <option value="">-- Pilih Bandwidth --</option>
+
+                            <!-- <option value="">-- 10 mbps --</option> -->
+
                             @php
                                 $bandwidths = \App\Models\Competitor::select('kecepatan')->distinct()->pluck('kecepatan');
                             @endphp
@@ -160,34 +168,21 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @forelse($pelanggans as $index => $p)
-                                        <tr>
-                                            <td class="text-center">{{ $index + 1 }}</td>
-                                            <td><strong>{{ $p->id_pelanggan }}</strong></td>
-                                            <td>{{ $p->nama_pelanggan }}</td>
-                                            <td><span class="badge bg-info">{{ $p->bandwidth }}</span></td>
-                                            <td>{{ $p->nomor_telepon }}</td>
-                                            <td><span class="badge bg-primary">{{ $p->provinsi ?? '-' }}</span></td>
-                                            <td><span class="badge bg-secondary">{{ $p->kabupaten ?? '-' }}</span></td>
-                                            <td>{{ Str::limit($p->alamat, 30) }}</td>
-                                            <td><span class="badge bg-warning text-dark">{{ $p->cluster }}</span></td>
-                                            <td><strong class="text-success">{{ $p->kode_fat ?: '-' }}</strong></td>
-                                            <td>
-                                                <small class="text-muted">
-                                                    <i class="fas fa-map-marker-alt"></i>
-                                                    {{ $p->latitude }}, {{ $p->longitude }}
-                                                </small>
-                                            </td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="11" class="text-center text-muted py-4">
-                                                <i class="fas fa-inbox fa-3x mb-3"></i>
-                                                <br>Belum ada data pelanggan
-                                                <br><small>Silakan input data pelanggan di form di atas</small>
-                                            </td>
-                                        </tr>
-                                    @endforelse
+                                    @foreach($pelanggans as $pelanggan)
+                    <tr>
+                        <td>{{ $loop->iteration }}</td> <!-- NO -->
+                        <td>{{ $pelanggan->id_pelanggan }}</td>
+                        <td>{{ $pelanggan->nama_pelanggan }}</td>
+                        <td>{{ $pelanggan->bandwidth }}</td>
+                        <td>{{ $pelanggan->nomor_telepon }}</td>
+                        <td>{{ $pelanggan->provinsi }}</td>
+                        <td>{{ $pelanggan->kabupaten }}</td>
+                        <td>{{ $pelanggan->alamat }}</td>
+                        <td>{{ $pelanggan->cluster }}</td>
+                        <td>{{ $pelanggan->kode_fat }}</td>
+                        <td>{{ $pelanggan->latitude }}, {{ $pelanggan->longitude }}</td>
+                    </tr>
+                    @endforeach
                                 </tbody>
                             </table>
                         </div>
